@@ -1,0 +1,83 @@
+// =============================================================================
+// IMPORT
+// =============================================================================
+@import "../../../styles";
+
+nav.dashboard_nav{
+	width: 100%;
+	background-color: #f2f2f2;
+	overflow: auto;
+
+	div.inner_container{
+		height: 50px;
+		width: 90%;
+		max-width: 1200px;
+		margin: 0 auto; 
+
+		ul{
+			width: 100%;
+			height: 100%;
+			margin: 0 auto;
+			max-width: 150px;
+			float: right;
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+	
+			li{
+
+				a{
+					background-color: #303030;
+					padding: 10px 15px;
+					border-radius: 3px;
+					color: white;
+					transition: background-color 200ms;
+					
+					&:hover{
+						background-color: lighten( #303030, 20%);
+					}
+				}
+			}
+		}
+	}	
+}
+
+section.email_verification{
+	width: 100%;
+	background-color: $blue;
+	padding: 10px 0;
+
+	div.inner_container{
+		width: 90%;
+		max-width: 1000px;
+		margin: 0 auto;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+
+		p{
+			font-size: 1.2rem;
+			color: white;
+			font-weight: 200;
+			width: calc(100% - 100px);
+			line-height: 20px;
+			vertical-align: middle;
+		}
+		a.button.gost{
+			border: 1px solid white;
+			border-radius: 4px;
+			width: auto;
+			color: white;
+			font-weight: 400;
+			font-size: 1rem;
+			padding: 10px 12px;
+			background-color: rgba(white, 0);
+			cursor: pointer;
+			transition: all 200ms;
+
+			&:hover{
+				background-color: rgba(white, 0.2);
+			}
+		}
+	}
+}

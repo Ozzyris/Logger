@@ -1,0 +1,54 @@
+<section class="signup">
+	<div class="inner_container">
+		<div class="signup_container">
+			<div class="signup_card">
+				<div class="header">
+					<h3>Signup</h3>
+				</div>
+				<div class="body">
+					<div class="input_group">
+						<label for="firstname_input">First name:</label>
+						<input type="text" id="firstname_input" placeholder="Annah" [(ngModel)]="input_first_name">
+						<p class="informational_message" [innerHTML]="info_first_name"></p>
+					</div>
+					<div class="input_group">
+						<label for="lastname_input">Last name:</label>
+						<input type="text" id="lastname_input" placeholder="Weng" [(ngModel)]="input_last_name">
+						<p class="informational_message" [innerHTML]="info_last_name"></p>
+					</div>
+					<div class="input_group">
+						<label for="email_input">Email:</label>
+						<input type="text" id="email_input" placeholder="annah.weng@gmail.com" [(ngModel)]="input_email">
+						<p class="informational_message" [innerHTML]="info_email"></p>
+					</div>
+					<div class="input_group">
+						<label for="password_input">Password:</label>
+						<input type="password" id="password_input" placeholder="1Grd%jdb" [(ngModel)]="input_password">
+						<span class="tooltype password_strength">
+							<h4>Password strength: {{strength_info}}</h4>
+							<p>8 letters minimum, try adding capitals, numbers, special signs.</p>
+							<div class="gauge_strengh">
+								<span class="level-1" [className]="level_1"></span>
+								<span class="level-2" [className]="level_2"></span>
+								<span class="level-3" [className]="level_3"></span>
+								<span class="level-4" [className]="level_4"></span>
+								<span class="level-5" [className]="level_5"></span>
+							</div>
+							
+						</span>
+						<p class="informational_message" [innerHTML]="info_password"></p>
+					</div>
+					<div class="input_group">
+						<label for="passwordconfirmation_input">Confirmation of password:</label>
+						<input type="password" id="passwordconfirmation_input" placeholder="1Grd%jdb" [(ngModel)]="input_password_confirmation">
+						<p class="informational_message" [innerHTML]="info_password_confirmation"></p>
+					</div>
+				</div>
+				<div class="footer">
+					<a [className]="button_class" (click)="input_verification()" [innerHTML]="button_text"></a>
+				</div>
+			</div>
+			<a routerLink="/login" class="link">Login to my account</a>
+		</div>
+	</div>
+</section>

@@ -1,0 +1,32 @@
+<section class="login">
+	<div class="inner_container">
+		<div class="login_container">
+			<div class="login_card">
+				<div class="header">
+					<h3>Login</h3>
+				</div>
+				<div class="body">
+					<div class="input_group">
+						<label for="email_input">Email address:</label>
+						<input type="text" id="email_input" placeholder="annah.weng@gmail.com" [(ngModel)]="input_email">
+						<p class="informational_message" [innerHTML]="info_email"></p>
+					</div>
+					<div class="input_group">
+						<label for="password_input">Password:</label>
+						<input type="password" id="password_input" placeholder="1Grd%jdb" [(ngModel)]="input_password">
+						<p class="informational_message" [innerHTML]="info_password"></p>
+					</div>
+					<div class="input_group checkbox">
+						<input id="input_stay_loggedin" type="checkbox">
+						<label for="input_stay_loggedin">Stay logged in.</label>
+					</div>
+				</div>
+				<div class="footer">
+					<a [className]="button_class" (click)="input_verification()" [innerHTML]="button_text"></a>
+				</div>
+			</div>
+			<a routerLink="/forget-password" class="link">Forgot password</a>
+			<a routerLink="/signup" class="link">Create a new account</a>
+		</div>
+	</div>
+</section>

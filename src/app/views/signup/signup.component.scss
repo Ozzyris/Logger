@@ -1,0 +1,217 @@
+// =============================================================================
+// IMPORT
+// =============================================================================
+@import "../../../styles";
+
+section.signup{
+	min-height: 100vh;
+
+	div.inner_container{
+		width: 90%;
+		min-height: 100vh;
+		max-width: 1200px;
+		margin: 0 auto;
+		display: flex;
+		align-items: center;
+		justify-content: space-around;
+
+		div.signup_container{
+			width: 100%;
+			max-width: 350px;
+
+			div.signup_card{
+				width: calc(100% - 40px);
+				height: auto;
+				background-color: $white;
+				padding: 25px 20px;
+				border-radius: 4px;
+				box-shadow: 0px 0px 5px rgba($black, 0.1);
+	
+				div.header{
+					margin-bottom: 20px;
+	
+					h3{
+						font-size: 20px;
+						text-align: center;
+						color: $dark_primary;
+					}
+				}
+				div.body{
+					div.input_group{
+						width: 100%;
+						margin: 30px 0;
+						position: relative;
+		
+						&:first-child{ margin-top: 0; }
+						&:last-child{ margin-bottom: 0; }
+						label{
+							font-size: 12px;
+							font-weight: 600;
+							display: block;
+							margin-bottom: 5px;
+							color: $dark_primary;
+						}
+						input{
+							font-size: 16px;
+							color: $dark_primary;
+							width: 100%;
+							padding: 12px 0;
+							border: none;
+							border-bottom: 1px solid $dark_primary;
+							font-weight: 400;
+						}
+						input#password_input:focus ~ span.tooltype.password_strength{
+							display: block;
+						}
+						span.tooltype.password_strength{
+							display: none;
+							width: 290px;
+							height: auto;
+							background-color: $white;
+							border-radius: 4px;
+							box-shadow: 0px 0px 5px rgba(black, 0.2);
+							position: absolute;
+							top: 80px;
+							left: -1px;
+							z-index: 10;
+
+							&:before{
+								content: '';
+								border-top: 0;
+								border-left: 10px solid transparent;
+								border-right: 10px solid transparent;
+								border-bottom: 12px solid rgba(black, 0.05);
+								display: block;
+								position: absolute;
+								top: -12px;
+								left: 8px;
+							}
+							&:after{
+								content: '';
+								border-top: 0;
+								border-left: 8px solid transparent;
+								border-right: 8px solid transparent;
+								border-bottom: 10px solid white;
+								display: block;
+								position: absolute;
+								top: -10px;
+								left: 10px;
+							}
+							h4{
+								margin: 10px 12px 0 12px;
+								color: $dark_primary;
+								font-weight: 600;
+								font-size: 16px;
+							}
+							p{
+								margin: 12px 12px 0 12px;
+								font-weight: 200;
+								font-size: 12px;
+								color: $dark_primary;
+							}
+							div.gauge_strengh{
+								width: calc(100% - 10px);
+								height: 6px;
+								margin: 12px 5px 5px 5px;
+								border-bottom-left-radius: 4px;
+								border-bottom-right-radius: 4px;
+								display: flex;
+								align-items: center;
+								justify-content: space-between;
+
+								span{
+									width: calc(20% - 2px);
+									background-color: $light_grey;
+									display: block;
+									border-radius: 4px;
+									height: 6px;
+
+									&.success{
+										background-color: $green;
+									}
+									&.warning{
+										background-color: $yellow;
+									}
+									&.error{
+										background-color: $red;
+									}
+								}
+							}
+						}
+
+						p.informational_message{
+							font-size: 12px;
+							font-weight: 200;
+							color: $red;
+							margin-top: 5px;
+
+							&::ng-deep span{
+								font-family: 'fontawesome';
+								font-weight: 300;
+							}
+						}
+					}
+				}
+				div.footer{
+					overflow: auto;
+					margin-top: 20px;
+	
+					a.button{
+						background-color: $dark_primary;
+						padding: 10px 15px;
+						border-radius: 3px;
+						color: white;
+						float: right;
+						transition: background-color 200ms;
+						transition: all 200ms;
+						width: 169px;
+						cursor: pointer;
+						position: relative;
+						
+						&:hover{
+							background-color: lighten( $dark_primary, 20%);
+						}
+
+						&.loading{
+							width: 10px;
+							color: transparent;
+							min-height: 20px;
+							border-radius: 50%;
+
+							&.success{
+								background-color: $green;
+								&:hover{
+									background-color: $green;
+								}
+							}
+							&::ng-deep span.icon{
+								font-family: 'fontawesome';
+								color: $white;
+								font-size: 20px;
+								display: block;
+								position: absolute;
+								top: calc(50% - 10px);
+								left: calc(50% - 10px);
+
+									&.rotate{
+										animation:spin 2s linear infinite;
+									}
+							}
+							@keyframes spin { 100% { transform: rotate(360deg); } }
+							&:hover{
+								background-color: $dark_primary;
+							}
+						}
+					}
+				}
+			}
+			a.link{
+				font-size: 12px;
+				color: $dark_primary;
+				font-weight: 200;
+				text-align: right;
+				margin: 10px auto;
+			}
+		}
+	}
+}

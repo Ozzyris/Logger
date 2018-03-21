@@ -12,6 +12,12 @@ import 'rxjs/add/operator/map';
 })
 
 export class SignupComponent implements OnInit {
+	//avatar
+	gradient_colors: any = [['d73828', 'e06a4d'], ['005d83', '4f8cad'], ['609c40', '9db37d'], ['901f46', 'b06071'], ['fbad18', 'ffd594'], ['f57e25', 'fbba89'], ['fff08b', 'f8d800'], ['ce9ffc', '7367f0'], ['90f7ec', '32ccbc'], ['81fbb8', '28c76f'], ['fccf31', 'f55555'], ['f761a1', '8c1bab']];
+	gradient_color: any;
+	gradient_style: any;
+	initials: string = '';
+
 	//inputs
 	input_given_name: string = '';
 	info_given_name: string = '';
@@ -34,22 +40,54 @@ export class SignupComponent implements OnInit {
 
 	//primary cta
 	button_text: string = 'Create my new account';
-	button_class: string = 'button';	
+	button_class: string = 'button';
 
 	constructor( private router:Router, private elementRef: ElementRef, private afAuth: AngularFireAuth, private afs: AngularFirestore ){
 		Observable.fromEvent(elementRef.nativeElement, 'keyup')
 			.map(() => this.input_password)
 			.debounceTime( 600 )
 			.distinctUntilChanged()
-			.subscribe(input => this.password_tester( input ));
-
+			.subscribe(input => {
+				this.password_tester( input );
+			});
 		Observable.fromEvent(elementRef.nativeElement, 'keyup')
 			.map(() => this.input_email)
 			.debounceTime( 600 )
 			.distinctUntilChanged()
-			.subscribe(input => this.email_tester( input ));			
+			.subscribe(input => {
+				this.email_tester( input );
+			});
+		Observable.fromEvent(elementRef.nativeElement, 'keyup')
+			.map(() => this.input_given_name)
+			.debounceTime( 600 )
+			.distinctUntilChanged()
+			.subscribe(input => {
+				if( input != '' && this.info_family_name != '' ){
+					this.avatar_generator();
+				}
+			});
+		Observable.fromEvent(elementRef.nativeElement, 'keyup')
+			.map(() => this.input_family_name)
+			.debounceTime( 600 )
+			.distinctUntilChanged()
+			.subscribe(input => {
+				if(  input != '' && this.input_given_name != '' ){
+					this.avatar_generator();
+				}
+			});
+
 	}
-	ngOnInit(){}
+	ngOnInit(){
+		//choose gradient color
+		let random_number = Math.floor(Math.random() * this.gradient_colors.length);
+		this.gradient_color = this.gradient_colors[random_number];
+	}
+
+	avatar_generator(){
+		this.initials = this.input_given_name.charAt(0).toUpperCase() + this.input_family_name.charAt(0).toUpperCase();
+		this.gradient_style =  	{"background": 'linear-gradient(to right, #' + this.gradient_color[0] + ', #' +this.gradient_color[1] + ')'}
+
+	}
 
 	password_tester( password ){
 		if( password ){

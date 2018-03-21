@@ -1,29 +1,30 @@
 <section class="signup">
 	<div class="inner_container">
 		<div class="signup_container">
+			<h2 class="title">Sign up</h2>
 			<div class="signup_card">
 				<div class="header">
-					<h3>Signup</h3>
+					<div class="user_icon" [ngStyle]="gradient_style">{{initials}}</div>
 				</div>
 				<div class="body">
 					<div class="input_group">
-						<label for="firstname_input">Given name:</label>
+						<label for="firstname_input">Given name <span class="required">*</span></label>
 						<input type="text" id="firstname_input" placeholder="Annah" [(ngModel)]="input_given_name">
 						<p class="informational_message" [innerHTML]="info_given_name"></p>
 					</div>
 					<div class="input_group">
-						<label for="lastname_input">Family name:</label>
+						<label for="lastname_input">Family name <span class="required">*</span></label>
 						<input type="text" id="lastname_input" placeholder="Weng" [(ngModel)]="input_family_name">
 						<p class="informational_message" [innerHTML]="info_family_name"></p>
 
 					</div>
 					<div class="input_group">
-						<label for="email_input">Email:</label>
+						<label for="email_input">Email <span class="required">*</span></label>
 						<input type="text" id="email_input" placeholder="annah.weng@gmail.com" [(ngModel)]="input_email">
 						<p class="informational_message" [innerHTML]="info_email"></p>
 					</div>
 					<div class="input_group">
-						<label for="password_input">Password:</label>
+						<label for="password_input">Password <span class="required">*</span></label>
 						<input type="password" id="password_input" placeholder="1Grd%jdb" [(ngModel)]="input_password">
 						<span class="tooltype password_strength">
 							<h4>Password strength: {{strength_info}}</h4>
@@ -40,7 +41,7 @@
 						<p class="informational_message" [innerHTML]="info_password"></p>
 					</div>
 					<div class="input_group">
-						<label for="passwordconfirmation_input">Confirmation of password:</label>
+						<label for="passwordconfirmation_input">Confirmation of password <span class="required">*</span></label>
 						<input type="password" id="passwordconfirmation_input" placeholder="1Grd%jdb" [(ngModel)]="input_password_confirmation">
 						<p class="informational_message" [innerHTML]="info_password_confirmation"></p>
 					</div>

@@ -30,10 +30,18 @@ section.signup{
 				div.header{
 					margin-bottom: 20px;
 	
-					h3{
-						font-size: 20px;
+					div.user_icon{
+						width: 50px;
+						height: 50px;
+						margin: 0 auto;
+						border-radius: 50%;
+						background-color: $light_grey;
+
+						color: white;
+						font-style: 2rem;
+						font-weight: 200;
 						text-align: center;
-						color: $dark_primary;
+						line-height: 50px;
 					}
 				}
 				div.body{
@@ -50,6 +58,10 @@ section.signup{
 							display: block;
 							margin-bottom: 5px;
 							color: $dark_primary;
+
+							span.required{
+								color: $red;
+							}
 						}
 						input{
 							font-size: 16px;

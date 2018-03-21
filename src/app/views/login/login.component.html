@@ -7,12 +7,12 @@
 				</div>
 				<div class="body">
 					<div class="input_group">
-						<label for="email_input">Email address:</label>
+						<label for="email_input">Email address <span class="required">*</span></label>
 						<input type="text" id="email_input" placeholder="annah.weng@gmail.com" [(ngModel)]="input_email">
 						<p class="informational_message" [innerHTML]="info_email"></p>
 					</div>
 					<div class="input_group">
-						<label for="password_input">Password:</label>
+						<label for="password_input">Password <span class="required">*</span></label>
 						<input type="password" id="password_input" placeholder="1Grd%jdb" [(ngModel)]="input_password">
 						<p class="informational_message" [innerHTML]="info_password"></p>
 					</div>

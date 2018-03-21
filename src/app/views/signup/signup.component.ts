@@ -13,10 +13,10 @@ import 'rxjs/add/operator/map';
 
 export class SignupComponent implements OnInit {
 	//inputs
-	input_first_name: string = '';
-	info_first_name: string = '';
-	input_last_name: string = '';
-	info_last_name: string = '';
+	input_given_name: string = '';
+	info_given_name: string = '';
+	input_family_name: string = '';
+	info_family_name: string = '';
 	input_email: string = '';
 	info_email: string = '';
 	input_password: string = '';
@@ -120,19 +120,20 @@ export class SignupComponent implements OnInit {
 	}
 
 	input_verification(){
+
 		this.button_class = 'button loading';
 		this.button_text = '<span class="icon rotate"></span>';
 
 		let open_door = true;
-		this.info_first_name = this.info_last_name = this.info_email = this.info_password = this.info_password_confirmation = '';
+		this.info_given_name = this.info_family_name = this.info_email = this.info_password = this.info_password_confirmation = '';
 
-		if( this.input_first_name == ''){
+		if( this.input_given_name == ''){
 			open_door = false;
-			this.info_first_name = '<span class="icon""></span> Your first name is required';
+			this.info_given_name = '<span class="icon""></span> Your given name is required';
 		}
-		if( this.input_last_name == ''){
+		if( this.input_family_name == ''){
 			open_door = false;
-			this.info_last_name = '<span class="icon""></span> Your last name is required';
+			this.info_family_name = '<span class="icon""></span> Your family name is required';
 		}
 		if( this.email_test( this.input_email ) == false ){
 			open_door = false;
@@ -171,9 +172,8 @@ export class SignupComponent implements OnInit {
 	create_new_account(){
 		this.afAuth.auth.createUserWithEmailAndPassword( this.input_email, this.input_password )
 			.then((success) => {
-				console.log( success );
+				console.log( success )
 				this.send_verification_email( success.uid );
-				
 			})
 			.catch((error) => {
 				this.button_class = 'button';
@@ -185,7 +185,7 @@ export class SignupComponent implements OnInit {
 	send_verification_email( user_id ){
 		this.afAuth.auth.currentUser.sendEmailVerification()
 			.then((success) => {
-				this.set_user_details( user_id );
+				this.update_details_on_auth_account( user_id );
 			})
 			.catch((error) => {
 				//add error notification
@@ -196,16 +196,27 @@ export class SignupComponent implements OnInit {
 			})
 	}
 
+	update_details_on_auth_account( user_id ){
+		this.afAuth.auth.currentUser.
+			updateProfile({
+				displayName: this.input_given_name.charAt(0).toUpperCase() + this.input_given_name.slice(1).toLowerCase() + ' ' + this.input_family_name.charAt(0).toUpperCase() + '.',
+				photoURL: 'some/url'
+			})
+			.then(() => {
+				this.set_user_details( user_id );
+			});
+	}
+
 	set_user_details( user_id ){
 		this.afs.collection('users')
 			.add({
 				'id': user_id,
-				'first_name': this.input_first_name,
-				'last_name': this.input_last_name,
-				'email': this.input_email
+				'given_name': this.input_given_name.charAt(0).toUpperCase() + this.input_given_name.slice(1).toLowerCase(),
+				'family_name': this.input_family_name.charAt(0).toUpperCase() + this.input_family_name.slice(1).toLowerCase(),
+				'email': this.input_email.toLowerCase()
 			})
-			.then((success) => {
-				this.input_first_name = this.input_last_name = this.input_email = this.input_password = this.input_password_confirmation ='';
+			.then((obj) => {
+				this.input_given_name = this.input_family_name = this.input_email = this.input_password = this.input_password_confirmation ='';
 				this.button_class = 'button loading success';
 				this.button_text = '<span class="icon"></span>';
 				let timer = setTimeout(() => {  
@@ -214,11 +225,10 @@ export class SignupComponent implements OnInit {
 				}, 1500);
 			})
 			.catch((error) => {
-				//add error notification
 				this.button_class = 'button';
 				this.button_text = 'Create my new account';
-
 				console.log(error);
+
 			});
 	}
 

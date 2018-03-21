@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from 'angularfire2/auth';
 
-
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
+
 	//inputs
 	input_email: string = '';
 	info_email: string = '';
@@ -19,7 +19,7 @@ export class LoginComponent implements OnInit {
 	button_text: string = 'Login';
 	button_class: string = 'button';
 
-	constructor( private afAuth: AngularFireAuth, private router:Router ){}
+	constructor( private router:Router, private afAuth: AngularFireAuth ){}
 	ngOnInit(){}
 
 	email_test( email ){
@@ -53,6 +53,9 @@ export class LoginComponent implements OnInit {
 
 		if( open_door == true ){
 			this.login();
+		}else{
+			this.button_class = 'button';
+			this.button_text = 'Login';
 		}
 	}
 
@@ -72,5 +75,4 @@ export class LoginComponent implements OnInit {
 				this.button_text = 'Login';
 			});
 	}
-
 }

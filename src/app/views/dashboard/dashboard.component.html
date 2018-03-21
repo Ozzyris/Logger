@@ -1,15 +1,15 @@
 <nav class="dashboard_nav" >
 	<div class="inner_container">
 		<ul>
-			<li>{{user.email}}</li>
-			<li><a routerLink="/landing">logout</a></li>
+			<li>{{user.display_name}}</li>
+			<li><a (click)="logout()">logout</a></li>
 		</ul>
 	</div>
 </nav>
 
 <section class="email_verification" *ngIf="!user.is_email_verified" >
 	<div class="inner_container">
-		<p>To ensure the security of you account, and the fact than you are human you need to verify your email.</p>
+		<p>{{email_verification_message}}</p>
 		<a class="button gost" (click)="send_another_email_verification()">Resend</a>
 	</div>
 </section>

@@ -1,6 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from 'angularfire2/auth';
+import { Observable } from 'rxjs/Rx';
+import 'rxjs/add/operator/map';
+
+//https://gist.github.com/katowulf/6479129
 
 @Component({
   selector: 'app-login',
@@ -8,7 +12,6 @@ import { AngularFireAuth } from 'angularfire2/auth';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
-
 	//inputs
 	input_email: string = '';
 	info_email: string = '';
@@ -19,8 +22,24 @@ export class LoginComponent implements OnInit {
 	button_text: string = 'Login';
 	button_class: string = 'button';
 
-	constructor( private router:Router, private afAuth: AngularFireAuth ){}
+	//avatar
+	gradient_style: any;
+	initials: string = '';
+
+	constructor( private router:Router, private elementRef: ElementRef, private afAuth: AngularFireAuth ){
+		Observable.fromEvent(elementRef.nativeElement, 'keyup')
+			.map(() => this.input_email)
+			.debounceTime( 600 )
+			.distinctUntilChanged()
+			.subscribe(input => {
+				this.get_logo_information();
+			});
+	}
 	ngOnInit(){}
+
+	get_logo_information(){
+		
+	}
 
 	email_test( email ){
 		var emailRegex = new RegExp('^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$', 'i');

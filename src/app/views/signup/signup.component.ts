@@ -251,7 +251,12 @@ export class SignupComponent implements OnInit {
 				'id': user_id,
 				'given_name': this.input_given_name.charAt(0).toUpperCase() + this.input_given_name.slice(1).toLowerCase(),
 				'family_name': this.input_family_name.charAt(0).toUpperCase() + this.input_family_name.slice(1).toLowerCase(),
-				'email': this.input_email.toLowerCase()
+				'email': this.input_email.toLowerCase(),
+				'avatar': {
+					'type': 'generated',
+					'gradient': this.gradient_color,
+					'initials': this.initials
+				}
 			})
 			.then((obj) => {
 				this.input_given_name = this.input_family_name = this.input_email = this.input_password = this.input_password_confirmation ='';

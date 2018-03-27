@@ -1,8 +1,24 @@
 <nav class="dashboard_nav" >
 	<div class="inner_container">
 		<ul>
-			<li>{{user.display_name}}</li>
-			<li><a (click)="logout()">logout</a></li>
+			<li class="active"><a>Home</a></li>
+			<li><a>Banana</a></li>
+			<li class="profile_sub_nav">
+				<div class="user_icon"></div>
+				<div class="nav_dropdown">
+					<div class="header">
+						<h3>Hello Alexandre</h3>
+					</div>
+					<ul>
+						<li><a>Profile</a></li>
+						<li><a>Notification</a></li>
+						<li><a>Log history</a></li>
+						<li><a>Give get</a></li>
+						<li><a>Terms and Condition</a></li>
+						<li><a>Logout</a></li>
+					</ul>
+				</div>
+			</li>
 		</ul>
 	</div>
 </nav>

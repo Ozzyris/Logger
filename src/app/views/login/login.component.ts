@@ -1,10 +1,21 @@
 import { Component, OnInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from 'angularfire2/auth';
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from 'angularfire2/firestore';
 import { Observable } from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
 
-//https://gist.github.com/katowulf/6479129
+interface User {
+	id: string,
+	given_name: string,
+	family_name: string,
+	email: string,
+	avatar: {
+		initials: string,
+		gradient: any,
+		type: string
+	}
+}
 
 @Component({
   selector: 'app-login',
@@ -22,23 +33,29 @@ export class LoginComponent implements OnInit {
 	button_text: string = 'Login';
 	button_class: string = 'button';
 
-	//avatar
 	gradient_style: any;
-	initials: string = '';
 
-	constructor( private router:Router, private elementRef: ElementRef, private afAuth: AngularFireAuth ){
+	//database
+	user_documents: AngularFirestoreDocument<User>;
+	users: Observable<any>;
+
+	constructor( private router:Router, private elementRef: ElementRef, private afAuth: AngularFireAuth, private afs: AngularFirestore ){
 		Observable.fromEvent(elementRef.nativeElement, 'keyup')
 			.map(() => this.input_email)
 			.debounceTime( 600 )
 			.distinctUntilChanged()
 			.subscribe(input => {
-				this.get_logo_information();
+				this.get_logo_information( input );
 			});
 	}
 	ngOnInit(){}
 
-	get_logo_information(){
-		
+	get_logo_information( email ){
+		// this.db.col$('notes', ref => ref.where('user', '==', 'Jeff'))
+
+		// this.user_documents = this.afs.collection('users', ref => { ref.where('email', '==', email)}).doc( ref.id )
+		this.user_documents = this.afs.doc('users/qm4bPxqKIe1Zh3fPjkTG');
+		this.users = this.user_documents.valueChanges();
 	}
 
 	email_test( email ){

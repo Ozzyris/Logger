@@ -1,10 +1,22 @@
 import { Component, OnInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from 'angularfire2/auth';
+import { AngularFirestore, AngularFirestoreCollection } from 'angularfire2/firestore';
 import { Observable } from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
 
-//https://gist.github.com/katowulf/6479129
+//https://gist.github.com/katowulf/6479129 
+export interface User{
+	id: string,
+	given_name: string,
+	family_name: string,
+	email: string,
+	avatar: {
+		gradient: any,
+		initials: string,
+		type: string,
+	},
+}
 
 @Component({
   selector: 'app-login',
@@ -26,19 +38,29 @@ export class LoginComponent implements OnInit {
 	gradient_style: any;
 	initials: string = '';
 
-	constructor( private router:Router, private elementRef: ElementRef, private afAuth: AngularFireAuth ){
+	private UserCollection: AngularFirestoreCollection<User>;
+	users: Observable<User[]>;
+
+	constructor( private router:Router, private elementRef: ElementRef, private afAuth: AngularFireAuth, private afs: AngularFirestore ){
 		Observable.fromEvent(elementRef.nativeElement, 'keyup')
 			.map(() => this.input_email)
 			.debounceTime( 600 )
 			.distinctUntilChanged()
 			.subscribe(input => {
-				this.get_logo_information();
+				this.get_logo_information( input );
 			});
+
+			this.UserCollection = afs.collection<User>('users');
+    		this.users = this.UserCollection.valueChanges();
+
+    		console.log(this.users);
 	}
 	ngOnInit(){}
 
-	get_logo_information(){
-		
+	get_logo_information( input ){
+		console.log(input)
+		let user = this.afs.collection('users', ref => ref.where('email', '==', input));
+		console.log(user);
 	}
 
 	email_test( email ){

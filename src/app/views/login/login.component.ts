@@ -47,11 +47,6 @@ export class LoginComponent implements OnInit {
 			.subscribe(input => {
 				this.get_logo_information( input );
 			});
-
-			this.UserCollection = afs.collection<User>('users');
-    		this.users = this.UserCollection.valueChanges();
-
-    		console.log(this.users);
 	}
 	ngOnInit(){}
 
@@ -105,6 +100,7 @@ export class LoginComponent implements OnInit {
 			.then(value => {
 				this.button_class = 'button loading success';
 				this.button_text = '<span class="icon"></span>';
+
 				let timer = setTimeout(() => {  
 					this.router.navigate(['dashboard']);
 					clearTimeout(timer);

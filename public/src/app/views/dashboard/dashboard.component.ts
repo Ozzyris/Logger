@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from 'angularfire2/auth';
+import { Observable } from 'rxjs/Rx';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,7 +28,7 @@ export class DashboardComponent implements OnInit {
 				this.get_user_data( active_user.uid );
 
 				if( !active_user.emailVerified ){
-					this.write_alien_message();
+					this.write_email_message();
 				}
 			}else{
 				this.router.navigate(['landing']);
@@ -37,7 +38,7 @@ export class DashboardComponent implements OnInit {
 		
 	}
 
-	write_alien_message(){
+	write_email_message(){
 		let array_of_possibility = ['👽', '👻', '🦁', '🐿', '🍕', '🌮'];
 		let randomly_selected_icon = array_of_possibility[Math.floor(Math.random() * array_of_possibility.length)];
 		this.email_verification_message = 'Verify your email and prove that you are not a ' + randomly_selected_icon;
@@ -54,7 +55,6 @@ export class DashboardComponent implements OnInit {
 
 	get_user_data( user_id ){
 		this.user.id = user_id;
-		console.log( user_id );
 	}
 
 	send_another_email_verification(){

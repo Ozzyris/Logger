@@ -1,6 +1,7 @@
 // PACKAGES
 const express = require('express'),
-	  router = express.Router();
+	  router = express.Router(),
+	  Users = require('../models/users').Users;
 
 // HELPERS
 var bcrypt = require('../helpers/bcrypt')
@@ -8,24 +9,47 @@ var bcrypt = require('../helpers/bcrypt')
 
 	// CHECK EMAIL
 	router.get('/check-email/:email', function (req, res) {
-		//check is email is in the db{ email: req.params }
-		res.status(200).json({status: 'unexistant'});
-		// res.status(200).json({status: 'existant'});
+		Users.check_if_unique_email( req.params.email )
+			.then( is_email_unique => {
+				res.status(200).json({status: 'existant'});
+			})
+			.catch(error => {
+				res.status(400).json({status: 'unexistant'});
+			})
 	});
 
 	// ADD USER
-	router.post('/add-user', function (req, res) {
-		if(!req.body.given_name){
-			res.status(400).send([{message: "Given name cannot be empty"}]);
-			return;
+	router.put('/add-user', function (req, res) {
+		let user = {
+			given_name: req.body.given_name,
+			family_name: req.body.family_name,
+			email: req.body.email,
+			email_verification: false,
+			password: req.body.password,
+			plain_password: req.body.plain_password,
+			avatar: {
+				initials: req.body.initials,
+				gradient: req.body.gradient,
+				type: req.body.type
+			}
 		}
 
-		let given_name = req.body.given_name;
+		Users.check_if_unique_email( user.email )
+			.then( is_email_unique => {
+				return bcrypt.hash_password( user.password );
+			})
+			.then( hash_password => {
+				user.password = hash_password;
+				return new Users(user).save()
+			})
+			.then( inserted => {
+				res.status(200).send({ user_id: inserted._id })
+			})
+			.catch( error => {
+				res.status(400).json( error );
+			})
 
-		bcrypt.hash_password( given_name )
-			.then(hash_email => {
-				res.status(200).send( hash_email );
-			});
+
 	});
 
 	//LOGIN USER

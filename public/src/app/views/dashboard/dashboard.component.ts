@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from 'angularfire2/auth';
+<<<<<<< HEAD:src/app/views/dashboard/dashboard.component.ts
 import { AngularFirestore, AngularFirestoreDocument } from 'angularfire2/firestore';
 import { Observable } from 'rxjs/Rx';
 
@@ -15,6 +16,9 @@ export interface User{
 		type: string
 	}
 }
+=======
+import { Observable } from 'rxjs/Rx';
+>>>>>>> 54243643c15d4765ae672d594a9e96cd5b070e49:public/src/app/views/dashboard/dashboard.component.ts
 
 @Component({
   selector: 'app-dashboard',
@@ -81,9 +85,12 @@ export class DashboardComponent implements OnInit {
 
 	get_user_data( user_id ){
 		this.user.id = user_id;
+<<<<<<< HEAD:src/app/views/dashboard/dashboard.component.ts
 		this.user_documents = this.afs.doc('users/' + user_id);
 		this.users = this.user_documents.valueChanges();
 		this.initials = this.users.avatar.initials;
+=======
+>>>>>>> 54243643c15d4765ae672d594a9e96cd5b070e49:public/src/app/views/dashboard/dashboard.component.ts
 	}
 
 	send_another_email_verification(){

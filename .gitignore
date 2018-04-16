@@ -1,44 +1,52 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # compiled output
-/dist
-/dist-server
-/tmp
-/out-tsc
+/public/dist
+/public/dist-server
+/public/tmp
+/public/out-tsc
 
 # dependencies
-/node_modules
-/src/environments
+/public/node_modules
+/public/src/environments
 
 # IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+/public/.idea
+/public/.project
+/public/.classpath
+/public/.c9/
+/public/*.launch
+/public/.settings/
+/public/*.sublime-workspace
 
 # IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+/public/.vscode/*
+/public/!.vscode/settings.json
+/public/!.vscode/tasks.json
+/public/!.vscode/launch.json
+/public/!.vscode/extensions.json
 
 # misc
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-testem.log
-/typings
+/public/.sass-cache
+/public/connect.lock
+/public/coverage
+/public/libpeerconnection.log
+/public/npm-debug.log
+/public/testem.log
+/public/typings
 
 # e2e
-/e2e/*.js
-/e2e/*.map
+/public/e2e/*.js
+/public/e2e/*.map
 
 # System Files
-.DS_Store
-Thumbs.db
+/public/.DS_Store
+/public/Thumbs.db
+
+
+
+
+# SERVER
+# dependencies
+/server/node_modules
+/server/src/environments

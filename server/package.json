@@ -1,0 +1,18 @@
+{
+  "name": "ping_master",
+  "version": "1.0.0",
+  "description": "Full starter pack for a webapp. Including login and sign up",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "author": "Alexandre Nicol",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "bluebird": "^3.5.1",
+    "body-parser": "^1.18.2",
+    "express": "^4.15.4"
+  }
+}

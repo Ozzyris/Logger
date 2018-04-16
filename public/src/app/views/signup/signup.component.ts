@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { AngularFirestore } from 'angularfire2/firestore';
 import { Observable } from 'rxjs/Rx';
-import 'rxjs/add/operator/map';
+import { map, take, debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-signup',
@@ -141,6 +141,17 @@ export class SignupComponent implements OnInit {
 
 	email_tester( email ){
 		if( email ){
+			let is_email_exist;
+			this.afs.collection( 'users', ref => ref.where('email', '==', email) )
+			.valueChanges().pipe(
+				take(1),
+				map(arr => {
+					is_email_exist = arr;
+				})
+			)
+
+			console.log(is_email_exist);
+
 			this.info_email = '';
 			if( this.email_test( email ) == false ) {
 				this.info_email = '<span class="icon""></span> Your email is incorrect.';

@@ -34,8 +34,8 @@ nav.dashboard_nav{
 					transition: all 200ms;
 
 					&:hover{
-						background-color: $dark_primary;
-						border-color: $dark_primary;
+						background-color: $med_primary;
+						border-color: $med_primary;
 						color: $light_grey;
 					}
 				}
@@ -58,7 +58,7 @@ nav.dashboard_nav{
 						font-style: 2rem;
 						font-weight: 200;
 						text-align: center;
-						line-height: 50px;
+						line-height: 42px;
 					}
 					div.nav_dropdown{
 						display: none;

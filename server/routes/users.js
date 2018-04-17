@@ -59,15 +59,8 @@ var bcrypt = require('../helpers/bcrypt')
 			password: req.body.password
 		}
 
-		bcrypt.hash_password( user.password )
-			.then( hash_password => {
-				user.password = hash_password;
-				return Users.get_password_from_email( user.email );
-			})
 		Users.get_password_from_email( user.email )
 			.then( db_password => {
-				console.log(db_password, user.password)
-				bcrypt.compare_password( user.password, db_password )
 				console.log(user.password, db_password);
 				return bcrypt.compare_password( user.password, db_password );
 			})

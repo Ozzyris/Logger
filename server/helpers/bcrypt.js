@@ -19,10 +19,8 @@ function hash_password( plain_password ){
     })
 }
 
-function compare_password( first_hash, second_hash ){
 function compare_password( plain_password, db_password ){
     return new Promise((resolve, reject)=>{
-        bcrypt.compare(first_hash, second_hash, function(err, res) {
         bcrypt.compare(plain_password, db_password, function(err, res) {
             if(err){
                 reject(err)

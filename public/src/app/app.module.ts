@@ -1,12 +1,11 @@
+// PLUGIN
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AngularFireModule } from 'angularfire2';
-import { AngularFirestoreModule } from 'angularfire2/firestore';
-import { AngularFireAuthModule } from 'angularfire2/auth';
-import { environment } from '../environments/environment';
+import { HttpModule } from '@angular/http';
 
+// VIEWS
 import { AppComponent } from './app.component';
 import { LoginComponent } from './views/login/login.component';
 import { SignupComponent } from './views/signup/signup.component';
@@ -31,7 +30,6 @@ const appRoutes: Routes = [
 	{ path: '**', component: PagenotfoundComponent }
 ];
 
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -47,9 +45,7 @@ const appRoutes: Routes = [
     BrowserModule,
     RouterModule.forRoot(appRoutes),
     FormsModule,
-    AngularFireModule.initializeApp(environment.firebase),
-    AngularFirestoreModule,
-    AngularFireAuthModule
+    HttpModule
   ],
   providers: [],
   bootstrap: [AppComponent]

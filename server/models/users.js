@@ -7,6 +7,7 @@ var users = new mongoose.Schema({
     given_name: {type: String},
     family_name: {type: String},
     email: {type: String},
+    email_verification: {type: Boolean, default: false},
     password: {type: String},
     avatar: {
         initials: {type: String},
@@ -22,9 +23,21 @@ users.statics.check_if_unique_email = function (email){
             .then( user => {
                 if( !user ){
                     resolve( true );
-                    return;
                 }else{
-                    reject({ error: 'Email already exist', code: 'email_duplicate'});
+                    reject({ message: 'Your email already exist', code: 'email_duplicate'});
+                }
+            })
+    })
+};
+
+users.statics.get_avatar_from_email = function (email){
+    return new Promise((resolve, reject) => {
+        this.findOne({ email : email }).exec()
+            .then( user => {
+                if( user ){
+                    resolve( user.avatar );
+                }else{
+                    reject({ message: 'Your email does not exist', code: 'email_not_exist'});
                 }
             })
     })
@@ -37,7 +50,7 @@ users.statics.get_password_from_email = function( email ){
                 if( user ){
                     resolve( user.password )
                 }else{
-                    reject({ error: 'Email does not exist', code: 'email_not_exist'});
+                    reject({ message: 'Your email does not exist', code: 'email_not_exist'});
                 }
             })
     });

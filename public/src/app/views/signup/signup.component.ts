@@ -1,14 +1,15 @@
 import { Component, OnInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { AngularFireAuth } from 'angularfire2/auth';
-import { AngularFirestore } from 'angularfire2/firestore';
 import { Observable } from 'rxjs/Rx';
 import { map, take, debounceTime } from 'rxjs/operators';
+import { users_service } from '../../services/users/users.service'
+import { validator_service } from '../../services/validator/validator.service'
 
 @Component({
-  selector: 'app-signup',
-  templateUrl: './signup.component.html',
-  styleUrls: ['./signup.component.scss']
+	selector: 'app-signup',
+	templateUrl: './signup.component.html',
+	styleUrls: ['./signup.component.scss'],
+	providers: [users_service, validator_service]
 })
 
 export class SignupComponent implements OnInit {
@@ -42,7 +43,10 @@ export class SignupComponent implements OnInit {
 	button_text: string = 'Create my new account';
 	button_class: string = 'button';
 
-	constructor( private router:Router, private elementRef: ElementRef, private afAuth: AngularFireAuth, private afs: AngularFirestore ){
+	//form validator
+	form_open_door: boolean = true;
+
+	constructor( private router:Router, private elementRef: ElementRef, private users_service: users_service, private validator_service: validator_service ){
 		Observable.fromEvent(elementRef.nativeElement, 'keyup')
 			.map(() => this.input_password)
 			.debounceTime( 600 )
@@ -91,7 +95,7 @@ export class SignupComponent implements OnInit {
 
 	password_tester( password ){
 		if( password ){
-			switch( this.password_test( password ) ){
+			switch( this.validator_service.password_test( password ) ){
 				case "Great":
 					this.strength_info = "Great";
 					this.level_1 = this.level_2 = this.level_3 = this.level_4 = this.level_5 = '';
@@ -120,169 +124,127 @@ export class SignupComponent implements OnInit {
 			}
 		}
 	}
-	password_test( password ){
-		let greatRegex = new RegExp( "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{10,})" ),
-		goodRegex = new RegExp( "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})" ),
-		averageRegex = new RegExp( "(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{8,})" ),
-		poorRegex = new RegExp( "(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{6,})" );
-
-		if (greatRegex.test( password )) {
-			return "Great";
-		} else if (goodRegex.test( password )) {
-			return "Good";
-		} else if (averageRegex.test( password )) {
-			return "Average";
-		} else if (poorRegex.test( password )) {
-			return "Poor";
-		} else {
-			return "Weak";
-		}
-	}
 
 	email_tester( email ){
 		if( email ){
-			let is_email_exist;
-			this.afs.collection( 'users', ref => ref.where('email', '==', email) )
-			.valueChanges().pipe(
-				take(1),
-				map(arr => {
-					is_email_exist = arr;
-				})
-			)
-
-			console.log(is_email_exist);
-
 			this.info_email = '';
-			if( this.email_test( email ) == false ) {
+			if( this.validator_service.email_test( email ) == false ) {
 				this.info_email = '<span class="icon""></span> Your email is incorrect.';
+			}else{
+				this.users_service.check_email( email )
+					.then( is_email_exist => {
+						this.form_open_door = true;
+					})
+					.catch(error => {
+						let error_content = JSON.parse(error._body);
+						this.form_open_door = false;
+						this.info_email = '<span class="icon""></span> ' + error_content.message;
+					});
 			}
 		}
 	}
 
-	email_test( email ){
-		var emailRegex = new RegExp('^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$', 'i');
-		if( emailRegex.test(email) ) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	input_verification(){
+			if( this.form_open_door == true ){
+			this.button_class = 'button loading';
+			this.button_text = '<span class="icon rotate"></span>';
 
-		this.button_class = 'button loading';
-		this.button_text = '<span class="icon rotate"></span>';
+			this.info_given_name = this.info_family_name = this.info_email = this.info_password = this.info_password_confirmation = '';
 
-		let open_door = true;
-		this.info_given_name = this.info_family_name = this.info_email = this.info_password = this.info_password_confirmation = '';
+			if( this.input_given_name == ''){
+				this.form_open_door = false;
+				this.info_given_name = '<span class="icon""></span> Your given name is required';
+			}
+			if( this.input_family_name == ''){
+				this.form_open_door = false;
+				this.info_family_name = '<span class="icon""></span> Your family name is required';
+			}
+			if( this.validator_service.email_test( this.input_email ) == false ){
+				this.form_open_door = false;
+				this.info_email = '<span class="icon""></span> Your email is incorrect';
+			}
+			if( this.input_email == ''){
+				this.form_open_door = false;
+				this.info_email = '<span class="icon""></span> Your email is required';
+			}
+			let pass_strengh = this.validator_service.password_test( this.input_password );
+			if( pass_strengh == 'Average' || pass_strengh == "Poor" || pass_strengh == "Weak" ){
+				this.form_open_door = false;
+				this.info_password = this.info_password_confirmation ='<span class="icon""></span> Your password is not strong enough';
+			}
+			if( this.input_password != this.input_password_confirmation){
+				this.form_open_door = false;
+				this.info_password = '<span class="icon""></span> Your passwords does not match';
+			}
+			if( this.input_password == ''){
+				this.form_open_door = false;
+				this.info_password = '<span class="icon""></span> Your password is required';
+			}
+			if( this.input_password_confirmation == ''){
+				this.form_open_door = false;
+				this.info_password_confirmation = '<span class="icon""></span> The confirmation of your password is required';
+			}
 
-		if( this.input_given_name == ''){
-			open_door = false;
-			this.info_given_name = '<span class="icon""></span> Your given name is required';
-		}
-		if( this.input_family_name == ''){
-			open_door = false;
-			this.info_family_name = '<span class="icon""></span> Your family name is required';
-		}
-		if( this.email_test( this.input_email ) == false ){
-			open_door = false;
-			this.info_email = '<span class="icon""></span> Your email is incorrect';
-		}
-		if( this.input_email == ''){
-			open_door = false;
-			this.info_email = '<span class="icon""></span> Your email is required';
-		}
-		let pass_strengh = this.password_test( this.input_password );
-		if( pass_strengh == 'Average' || pass_strengh == "Poor" || pass_strengh == "Weak" ){
-			open_door = false;
-			this.info_password = this.info_password_confirmation ='<span class="icon""></span> Your password is not strong enough';
-		}
-		if( this.input_password != this.input_password_confirmation){
-			open_door = false;
-			this.info_password = '<span class="icon""></span> Your passwords does not match';
-		}
-		if( this.input_password == ''){
-			open_door = false;
-			this.info_password = '<span class="icon""></span> Your password is required';
-		}
-		if( this.input_password_confirmation == ''){
-			open_door = false;
-			this.info_password_confirmation = '<span class="icon""></span> The confirmation of your password is required';
-		}
-
-		if( open_door == true ){
-			this.create_new_account();
-		}else{
-			this.button_class = 'button';
-			this.button_text = 'Create my new account';
+			if( this.form_open_door == true ){
+				this.create_new_account();
+			}else{
+				this.button_class = 'button';
+				this.button_text = 'Create my new account';
+			}
 		}
 	}
 
 	create_new_account(){
-		this.afAuth.auth.createUserWithEmailAndPassword( this.input_email, this.input_password )
-			.then((success) => {
-				console.log( success )
-				this.send_verification_email( success.uid );
-			})
-			.catch((error) => {
-				this.button_class = 'button';
-				this.button_text = 'Create my new account';
-				this.info_email = '<span class="icon""></span> ' + error.message;
-			});
-	}
-
-	send_verification_email( user_id ){
-		this.afAuth.auth.currentUser.sendEmailVerification()
-			.then((success) => {
-				this.update_details_on_auth_account( user_id );
-			})
-			.catch((error) => {
-				//add error notification
-				this.button_class = 'button';
-				this.button_text = 'Create my new account';
-
-				console.log(error);
-			})
-	}
-
-	update_details_on_auth_account( user_id ){
-		this.afAuth.auth.currentUser.
-			updateProfile({
-				displayName: this.input_given_name.charAt(0).toUpperCase() + this.input_given_name.slice(1).toLowerCase() + ' ' + this.input_family_name.charAt(0).toUpperCase() + '.',
-				photoURL: 'some/url'
-			})
-			.then(() => {
-				this.set_user_details( user_id );
-			});
-	}
-
-	set_user_details( user_id ){
-		this.afs.collection('users')
-			.add({
-				'id': user_id,
-				'given_name': this.input_given_name.charAt(0).toUpperCase() + this.input_given_name.slice(1).toLowerCase(),
-				'family_name': this.input_family_name.charAt(0).toUpperCase() + this.input_family_name.slice(1).toLowerCase(),
-				'email': this.input_email.toLowerCase(),
-				'avatar': {
-					'type': 'generated',
-					'gradient': this.gradient_color,
-					'initials': this.initials
+		let user = {
+			given_name: this.input_given_name.charAt(0).toUpperCase() + this.input_given_name.slice(1).toLowerCase(),
+			family_name: this.input_family_name.charAt(0).toUpperCase() + this.input_family_name.slice(1).toLowerCase(),
+			email: this.input_email.toLowerCase(),
+			password: this.input_password,
+			avatar: {
+				type: 'generated',
+				gradient: this.gradient_color,
+				initials: this.initials
+			}
+		}
+		this.users_service.create_user( user )
+			.then( user_detail => {
+				console.log( user_detail );
+				if(user_detail){
+					this.send_verification_email( user.email, user_detail.user_id );
 				}
 			})
-			.then((obj) => {
-				this.input_given_name = this.input_family_name = this.input_email = this.input_password = this.input_password_confirmation ='';
+			.catch(error => {
+				this.button_class = 'button';
+				this.button_text = 'Create my new account';
+
+				let error_content = JSON.parse(error._body);
+				switch( error_content.code ){
+					case 'email_duplicate' :
+						this.info_email = error_content.message;
+						break;
+					default:
+						console.log(error);
+						break;
+				}
+			});
+	}
+
+	send_verification_email( email, user_id ){
+		this.users_service.send_verfication_email( email )
+			.then( is_email_send => {
+				localStorage.setItem('user_id', user_id);
 				this.button_class = 'button loading success';
 				this.button_text = '<span class="icon"></span>';
+				
 				let timer = setTimeout(() => {  
 					this.router.navigate(['dashboard']);
 					clearTimeout(timer);
 				}, 1500);
 			})
-			.catch((error) => {
+			.catch(error => {
 				this.button_class = 'button';
 				this.button_text = 'Create my new account';
 				console.log(error);
-
 			});
 	}
 

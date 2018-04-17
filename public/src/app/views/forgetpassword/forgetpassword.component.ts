@@ -1,17 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from 'angularfire2/auth';
 
 @Component({
   selector: 'app-forgetpassword',
   templateUrl: './forgetpassword.component.html',
   styleUrls: ['./forgetpassword.component.scss']
 })
+
 export class ForgetpasswordComponent implements OnInit {
-	//inputs
 	input_email: string = '';
 	info_email: string = '';
 
-	constructor( private afAuth: AngularFireAuth ){}
+	constructor(){}
 	ngOnInit(){}
 
 	email_test( email ){
@@ -42,16 +41,16 @@ export class ForgetpasswordComponent implements OnInit {
 	}
 
 	send_forgot_email(){
-		this.afAuth.auth.sendPasswordResetEmail( this.input_email )
-			.then((success) => {
-				console.log( success );
-				// notification manger here
-				this.input_email = '';
-			})
-			.catch((error) => {
-				console.log( error );
-				// notification manger here
-				this.info_email = '<span class="icon""></span> ' + error.message;
-			});
+		// this.afAuth.auth.sendPasswordResetEmail( this.input_email )
+		// 	.then((success) => {
+		// 		console.log( success );
+		// 		// notification manger here
+		// 		this.input_email = '';
+		// 	})
+		// 	.catch((error) => {
+		// 		console.log( error );
+		// 		// notification manger here
+		// 		this.info_email = '<span class="icon""></span> ' + error.message;
+		// 	});
 	}
 }

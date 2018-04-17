@@ -54,25 +54,29 @@ var bcrypt = require('../helpers/bcrypt')
 
 	//LOGIN USER
 	router.post('/login', function (req, res) {
-		let password = req.body.password;
+		let user = {
+			email: req.body.email,
+			password: req.body.password
+		}
 
-		console.log(password);
-		bcrypt.hash_password( password )
-			.then(hash_password => {
-				
-				console.log(hash_password);
-				bcrypt.compare_password( hash_password, '$2a$10$2242I/Aexc5/CCcHUvfdL.nIpzLv1wrwdqBXImZeCs6o9ZRB9f3Me' )
-					.then(result => {
-
-						if(result == true){
-							res.status(200).json({message: 'Right password'});
-						}else{
-							res.status(400).json({message: 'Wrong password'});
-						}
-						
-					})
-					.catch(err => { console.log(err) })
-
+		bcrypt.hash_password( user.password )
+			.then( hash_password => {
+				user.password = hash_password;
+				return Users.get_password_from_email( user.email );
+			})
+			.then( db_password => {
+				console.log(db_password, user.password)
+				bcrypt.compare_password( user.password, db_password )
+			})
+			.then(are_password_similar => {
+				if( are_password_similar ){
+					res.status(200).send({message: 'Login successfull', code: 'logged_in'})
+				}else{
+					res.status(400).json({message: 'email or passowrd invalid', code: 'wrong_password'});
+				}
+			})
+			.catch( error => {
+				res.status(400).json( error );
 			});
 	});
 

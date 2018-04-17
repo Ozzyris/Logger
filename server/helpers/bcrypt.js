@@ -29,7 +29,7 @@ function compare_password( first_hash, second_hash ){
             else if(res === false){
                 resolve(res)
             }
-            resolve(res) // true
+            resolve(res)
         });
     })
 }

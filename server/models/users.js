@@ -17,19 +17,31 @@ var users = new mongoose.Schema({
 }, {collection: 'users'});
 
 users.statics.check_if_unique_email = function (email){
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
         this.findOne({ email : email }).exec()
-            .then( found => {
-                console.log( 'found:', found )
-                if( !found ){
+            .then( user => {
+                if( !user ){
                     resolve( true );
                     return;
                 }else{
-                    reject({ error: 'Email already exist', error_code: 'email_duplicate'});
+                    reject({ error: 'Email already exist', code: 'email_duplicate'});
                 }
             })
     })
 };
+
+users.statics.get_password_from_email = function( email ){
+    return new Promise((resolve, reject) => {
+        this.findOne({ email : email }).exec()
+            .then( user => {
+                if( user ){
+                    resolve( user.password )
+                }else{
+                    reject({ error: 'Email does not exist', code: 'email_not_exist'});
+                }
+            })
+    });
+}
 
 // users.statics.login = function(email, plaintextPassword){
 //     return new Promise((resolve, reject)=>{

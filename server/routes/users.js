@@ -64,11 +64,15 @@ var bcrypt = require('../helpers/bcrypt')
 				user.password = hash_password;
 				return Users.get_password_from_email( user.email );
 			})
+		Users.get_password_from_email( user.email )
 			.then( db_password => {
 				console.log(db_password, user.password)
 				bcrypt.compare_password( user.password, db_password )
+				console.log(user.password, db_password);
+				return bcrypt.compare_password( user.password, db_password );
 			})
 			.then(are_password_similar => {
+				console.log(are_password_similar);
 				if( are_password_similar ){
 					res.status(200).send({message: 'Login successfull', code: 'logged_in'})
 				}else{

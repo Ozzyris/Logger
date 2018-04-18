@@ -75,7 +75,6 @@ var bcrypt = require('../helpers/bcrypt')
 					return Users.get_user_id_from_email( user.email );
 				}else{
 					res.status(401).json({message: 'Your email or passowrd was invalid', code: 'wrong_password'});
-					break;
 				}
 			})
 			.then(user_id => {

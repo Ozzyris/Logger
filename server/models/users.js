@@ -43,6 +43,19 @@ users.statics.get_avatar_from_email = function (email){
     })
 };
 
+users.statics.get_user_id_from_email = function (email){
+    return new Promise((resolve, reject) => {
+        this.findOne({ email : email }).exec()
+            .then( user => {
+                if( user ){
+                    resolve( user._id );
+                }else{
+                    reject({ message: 'Your email does not exist', code: 'email_not_exist'});
+                }
+            })
+    })
+};
+
 users.statics.get_password_from_email = function( email ){
     return new Promise((resolve, reject) => {
         this.findOne({ email : email }).exec()

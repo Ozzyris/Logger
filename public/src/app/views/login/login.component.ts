@@ -41,22 +41,21 @@ export class LoginComponent implements OnInit {
 	ngOnInit(){}
 
 	get_avatar( email ){
-		console.log( email );
-		
 		if( this.validator_service.email_test( email ) == false ) {
 				this.info_email = '<span class="icon""></span> Your email is incorrect.';
 		}else{
 			this.users_service.get_avatar_from_email( email )
 				.then( avatar => {
-					console.log(avatar);
+					this.info_email = '';
 					if(avatar.type = 'generated'){
 						console.log(avatar);
 						this.gradient_style = {"background": 'linear-gradient(to right, #' + avatar.gradient[0] + ', #' + avatar.gradient[1] + ')'}
-						this.initials = avatar.intials;
+						this.initials = avatar.initials;
 					}
 				})
 				.catch(error => {
-					console.log(error);
+					let error_content = JSON.parse(error._body);
+					this.info_email = '<span class="icon""></span> ' + error_content.message;
 				});
 		}
 	}
@@ -99,19 +98,27 @@ export class LoginComponent implements OnInit {
 	}
 
 	login(){
-		// this.afAuth.auth.signInWithEmailAndPassword( this.input_email, this.input_password )
-		// 	.then(value => {
-		// 		this.button_class = 'button loading success';
-		// 		this.button_text = '<span class="icon"></span>';
-		// 		let timer = setTimeout(() => {  
-		// 			this.router.navigate(['dashboard']);
-		// 			clearTimeout(timer);
-		// 		}, 1500);
-		// 	})
-		// 	.catch(err => {
-		// 		console.log('Something went wrong:', err.message);
-		// 		this.button_class = 'button';
-		// 		this.button_text = 'Login';
-		// 	});
+		let user = {
+			email: this.input_email,
+			password: this.input_password
+		}
+
+		this.users_service.login( user )
+			.then( user_detail => {
+				if( user_detail ){
+					localStorage.setItem('user_id', user_detail.user_id);
+					this.button_class = 'button loading success';
+					this.button_text = '<span class="icon"></span>';
+					let timer = setTimeout(() => {  
+						this.router.navigate(['dashboard']);
+						clearTimeout(timer);
+					}, 1500);
+				}
+			})
+			.catch(error => {
+				console.log( error );
+				this.button_class = 'button';
+				this.button_text = 'Login';
+			});
 	}
 }

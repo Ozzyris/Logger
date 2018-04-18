@@ -45,7 +45,7 @@ export class users_service {
 			.then(res => res.json());
 	}
 
-	loginl( user_credential ): Promise<any>{
+	login( user_credential ): Promise<any>{
 		const url = environment.api_url + 'users/login';
 		
 		return this.http

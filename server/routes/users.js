@@ -14,7 +14,7 @@ var bcrypt = require('../helpers/bcrypt')
 				res.status(200).json({status: 'unexistant'});
 			})
 			.catch(error => {
-				res.status(400).json( error );
+				res.status(401).json( error );
 			})
 	});
 
@@ -45,7 +45,7 @@ var bcrypt = require('../helpers/bcrypt')
 				res.status(200).send({ user_id: inserted._id })
 			})
 			.catch( error => {
-				res.status(400).json( error );
+				res.status(401).json( error );
 			})
 	});
 
@@ -71,12 +71,15 @@ var bcrypt = require('../helpers/bcrypt')
 				return bcrypt.compare_password( user.password, db_password );
 			})
 			.then(are_password_similar => {
-				console.log(are_password_similar);
-				if( are_password_similar ){
-					res.status(200).send({message: 'Your login was successfull', code: 'logged_in'})
+				if(are_password_similar){
+					return Users.get_user_id_from_email( user.email );
 				}else{
-					res.status(400).json({message: 'Your email or passowrd was invalid', code: 'wrong_password'});
+					res.status(401).json({message: 'Your email or passowrd was invalid', code: 'wrong_password'});
+					break;
 				}
+			})
+			.then(user_id => {
+				res.status(200).send({ user_id: user_id });
 			})
 			.catch( error => {
 				res.status(400).json( error );

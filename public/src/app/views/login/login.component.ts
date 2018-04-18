@@ -20,6 +20,7 @@ export class LoginComponent implements OnInit {
 	info_email: string = '';
 	input_password: string = '';
 	info_password: string = '';
+	input_stay_loggedin: boolean = false;
 
 	//primary cta
 	button_text: string = 'Login';
@@ -48,7 +49,6 @@ export class LoginComponent implements OnInit {
 				.then( avatar => {
 					this.info_email = '';
 					if(avatar.type = 'generated'){
-						console.log(avatar);
 						this.gradient_style = {"background": 'linear-gradient(to right, #' + avatar.gradient[0] + ', #' + avatar.gradient[1] + ')'}
 						this.initials = avatar.initials;
 					}
@@ -100,13 +100,17 @@ export class LoginComponent implements OnInit {
 	login(){
 		let user = {
 			email: this.input_email,
-			password: this.input_password
+			password: this.input_password,
+			stay_loggedin: this.input_stay_loggedin
 		}
 
-		this.users_service.login( user )
+		this.users_service.login_with_credentials( user )
 			.then( user_detail => {
 				if( user_detail ){
-					localStorage.setItem('user_id', user_detail.user_id);
+					let user = {
+						id: user_detail.user_id
+					}
+					localStorage.setItem("user", JSON.stringify(user));
 					this.button_class = 'button loading success';
 					this.button_text = '<span class="icon"></span>';
 					let timer = setTimeout(() => {  
@@ -116,7 +120,9 @@ export class LoginComponent implements OnInit {
 				}
 			})
 			.catch(error => {
-				console.log( error );
+				let error_content = JSON.parse(error._body);
+				console.log( error_content );
+				this.info_password = error_content.message;
 				this.button_class = 'button';
 				this.button_text = 'Login';
 			});

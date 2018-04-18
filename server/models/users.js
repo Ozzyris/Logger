@@ -7,14 +7,48 @@ var users = new mongoose.Schema({
     given_name: {type: String},
     family_name: {type: String},
     email: {type: String},
-    email_verification: {type: Boolean, default: false},
     password: {type: String},
+    created_at: {type: Date, default: moment()},
     avatar: {
         initials: {type: String},
         gradient: [String],
         type: {type: String}
     },
-    created_at: {type: Date, default: moment()},
+    email_verification: {
+        is_email_being_verified: {type: Boolean, default: false},
+        email_token:{
+            token: {type: String},
+            expiration_date: {type: String},
+            date: {type: String}
+        }
+    },
+    password_reset: {
+        is_password_being_reset: {type: Boolean, default: false},
+        password_token:{
+            token: {type: String},
+            expiration_date: {type: String},
+            date: {type: String}
+        }
+    },
+    auth_record: {
+        active_auth: {
+            ip: {type: String},
+            location: {type: String},
+            browser: {type: String},
+            date: {type: String},
+            expiration_date: {type: String},
+            token: {type: String},
+
+        },
+        recorded_auth: [
+            {
+                ip: {type: String}
+                location: {type: String},
+                browser: {type: String},
+                date: {type: String}
+            }
+        ]
+    }
 }, {collection: 'users'});
 
 users.statics.check_if_unique_email = function (email){
@@ -69,32 +103,49 @@ users.statics.get_password_from_email = function( email ){
     });
 }
 
-// users.statics.login = function(email, plaintextPassword){
-//     return new Promise((resolve, reject)=>{
+users.statics.get_user_details_from_id = function( id ){
+    return new Promise((resolve, reject) => {
+        this.findOne({ _id : id }).exec()
+            .then( user => {
+                if( user ){
+                    let cleaned_user = {
+                        avatar: {
+                            gradient: user.avatar.gradient,
+                            initials: user.avatar.initials,
+                            type: user.avatar.type,
+                        },
+                        given_name: user.given_name,
+                        family_name: user.family_name,
+                        email: user.email,
+                        email_verification: user.email_verification
+                    }
+                    resolve( cleaned_user )
+                }else{
+                    reject({ message: 'Your id does not exist', code: 'id_not_exist'});
+                }
+            })
+    });
+}
 
-//         var foundUser
+// users.methods.verificationEmail = Promise.method(function(url){
+//     var randomStr = UUID();
 
-//         this.findOne({email: email}).exec()
-//             .then(found=>{
+//     var link = url+"/verify-email/"+randomStr
 
-//                 if(!found){
-//                     reject({message:'Login credentials incorrect'})
-//                     return
-//                 }
-//                 foundUser = found
-//                 return bcrypt.compare(plaintextPassword, found.password)
-//             })
-//             .then(()=>{
-//                 resolve(foundUser)
-//             })
-//             .catch(err=>{
-//                 reject(err)
-//             })
+//     var mail ={
+//         to: this.email,
+//         subject : 'Carrott account verification',
+//         html : mailer.linkEmail(
+//             'Verify account',
+//             'Hey from the team at yodlee<br>Thanks for signing up and using our app<br>Click the link below to verify tour yodlee account',
+//             link,
+//             'Verify email'
+//         )
+//     }
 
-//     })
-// };
-
-
+//     Users.update({_id: this._id}, {$set: {verifyEmailLink: randomStr}}).exec();
+//     mailer.send(mail)
+// })
 
 // users.methods.createSession = function(){
 //     return new Promise((resolve, reject)=>{
@@ -116,43 +167,6 @@ users.statics.get_password_from_email = function( email ){
 //     })
 // };
 
-// users.statics.findByEmail = function(email){
-//     return new Promise((resolve, reject)=>{
-//         Users.findOne({email: email}).exec()
-//             .then(found=>{
-//                 if(!found){
-//                     reject({message: 'Email not found'})
-//                 }
-//                 resolve(found)
-//             })
-//             .catch(error=>{
-//                 reject(error)
-//             })
-//     })
-// };
-
-
-// users.methods.createResetPasswordToken = function(){
-//     return new Promise((resolve, reject)=>{
-
-//         var token = UUID()
-//         Users.update({_id: this._id}, {$set:{
-//             resetPassword:{
-//                 token: token, expiration: moment().add(6,'h')
-//             }
-//         }
-//         }).exec()
-//             .then(updated=>{
-//                 if(updated.n ===0){
-//                     reject({message:"Couldn't create reset token"})
-//                 }
-//                 else{
-//                     resolve(token)
-//                 }
-//             })
-//     })
-// };
-
 // users.statics.deleteSession = function(token){
 //     console.log(token)
 //     return new Promise((resolve, reject)=>{
@@ -171,7 +185,7 @@ users.statics.get_password_from_email = function( email ){
 //     })
 // };
 
-// users.statics.findByAuth = function(token){
+// users.statics.findBySession = function(token){
 //     return new Promise((resolve, reject)=>{
 //         // this.findOne({'auth.token' :  token}).exec()
 //         this.findOne({auth:{$elemMatch:{token: token, expiration: {$gte: moment()}}}}).exec()
@@ -183,6 +197,27 @@ users.statics.get_password_from_email = function( email ){
 //             })
 //             .catch(error=>{
 //                 reject(error)
+//             })
+//     })
+// };
+
+
+// users.methods.createResetPasswordToken = function(){
+//     return new Promise((resolve, reject)=>{
+//         var token = UUID()
+//         Users.update({_id: this._id}, {$set:{
+//             resetPassword:{
+//                 token: token, expiration: moment().add(6,'h')
+//             }
+//         }
+//         }).exec()
+//             .then(updated=>{
+//                 if(updated.n ===0){
+//                     reject({message:"Couldn't create reset token"})
+//                 }
+//                 else{
+//                     resolve(token)
+//                 }
 //             })
 //     })
 // };
@@ -232,26 +267,6 @@ users.statics.get_password_from_email = function( email ){
 //             })
 //     })
 // }
-
-// users.methods.verificationEmail = Promise.method(function(url){
-//     var randomStr = UUID();
-
-//     var link = url+"/verify-email/"+randomStr
-
-//     var mail ={
-//         to: this.email,
-//         subject : 'Carrott account verification',
-//         html : mailer.linkEmail(
-//             'Verify account',
-//             'Hey from the team at yodlee<br>Thanks for signing up and using our app<br>Click the link below to verify tour yodlee account',
-//             link,
-//             'Verify email'
-//         )
-//     }
-
-//     Users.update({_id: this._id}, {$set: {verifyEmailLink: randomStr}}).exec();
-//     mailer.send(mail)
-// })
 
 var Users = mongoose.DB.model('Users', users);
 

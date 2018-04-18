@@ -2,11 +2,12 @@
 const express = require('express'),
 	  app = express(),
 	  server = require('http').createServer(app),
-	  bodyParser = require('body-parser');
+	  bodyParser = require('body-parser'),
+      environments = require('./environments/environment.dev.js');
 
 // HELPERS
 
-server.listen(1607);
+server.listen(environments.environment.port);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

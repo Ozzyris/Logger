@@ -6,6 +6,7 @@ const express = require('express'),
 // HELPERS
 var bcrypt = require('../helpers/bcrypt')
 
+ // req.checkBody('email', 'Email is required').notEmpty()
 
 	// CHECK EMAIL
 	router.get('/check-email/:email', function (req, res) {
@@ -19,7 +20,7 @@ var bcrypt = require('../helpers/bcrypt')
 	});
 
 	// GET AVATAR
-	router.get('/get-avatar/:email', function (req, res) {
+	router.get('/get-avatar-from-email/:email', function (req, res) {
 		Users.get_avatar_from_email( req.params.email )
 			.then( is_email_unique => {
 				res.status(200).json(is_email_unique);
@@ -50,17 +51,32 @@ var bcrypt = require('../helpers/bcrypt')
 	});
 
 	// SEND CONFIRMATION EMAIL
-	router.get('/send_verfication_email/:email', function (req, res) {
-		// console.log(req.params.email);
-		//check if there is any confirmation pending
-		//clear if there is any
-		//create a new token with expiry date
-		// send email
-		res.status(200).send({ message: 'email sent' });
+	router.get('/send-verfication-from-email/:email', function (req, res) {
+		// Users.check_active_email_token( req.params.email )
+		// 	.then(is_active_token => {
+		// 		if(!is_active_token){
+		// 			return User.create_email_token( req.params.email );
+		// 		}else{
+		// 			User.delete_email_token( is_active_token )
+		// 				then(is_deleted_token => {
+		// 					return User.create_email_token( req.params.email );
+		// 				})
+		// 		}
+		// 	})
+		// 	.then(email_token => {
+		// 		let url = req.protocol + '://' + req.get('host') + '/' + email_token;
+		// 		return Mailer.send_verification_email(url);
+		// 	})
+		// 	.then(is_email_send => {
+		// 		res.status(200).json({ message: 'Your verification email has been send', code: 'verification_email_send' });
+		// 	})
+		// 	.catch(error => {
+		// 		es.status(401).json( error );
+		// 	})
 	});
 
 	//LOGIN USER
-	router.post('/login', function (req, res) {
+	router.post('/login-with-credentials', function (req, res) {
 		let user = {
 			email: req.body.email,
 			password: req.body.password
@@ -78,11 +94,28 @@ var bcrypt = require('../helpers/bcrypt')
 				}
 			})
 			.then(user_id => {
-				res.status(200).send({ user_id: user_id });
+				res.status(200).json({ user_id: user_id });
 			})
 			.catch( error => {
-				res.status(400).json( error );
+				res.status(401).json( error );
 			});
+	});
+
+	// LOGOUT WITH HEADER
+	router.get('/logout-with-header', function (req, res) {
+		res.status(200).json({ message: 'You are logged out', code:'logged_out' });
+	});
+
+	// GET USER DETAILS FROM ID
+	router.get('/get-user-details-from-id/:id', function (req, res) {
+		Users.get_user_details_from_id( req.params.id )
+			.then( user => {
+				res.status(200).json(user);
+			})
+			.catch(error => {
+				res.status(401).json( error );
+			})
+		
 	});
 
 module.exports = {

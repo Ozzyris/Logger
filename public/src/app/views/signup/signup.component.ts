@@ -230,9 +230,12 @@ export class SignupComponent implements OnInit {
 	}
 
 	send_verification_email( email, user_id ){
-		this.users_service.send_verfication_email( email )
+		this.users_service.send_verfication_from_email( email )
 			.then( is_email_send => {
-				localStorage.setItem('user_id', user_id);
+				let user = {
+					id: user_id
+				}
+				localStorage.setItem("user", JSON.stringify(user));
 				this.button_class = 'button loading success';
 				this.button_text = '<span class="icon"></span>';
 				

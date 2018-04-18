@@ -4,10 +4,10 @@
 			<li class="active"><a>Home</a></li>
 			<li><a>Banana</a></li>
 			<li class="profile_sub_nav">
-				<div class="user_icon" [ngStyle]="gradient_style">{{initials}}</div>
+				<div class="user_icon" [ngStyle]="gradient_style">{{user.avatar.initials}}</div>
 				<div class="nav_dropdown">
 					<div class="header">
-						<h3>Hello Alexandre ✋</h3>
+						<h3>Hello {{user.given_name}} ✋</h3>
 					</div>
 					<ul>
 						<li><a>Profile</a></li>
@@ -26,6 +26,6 @@
 <section class="email_verification" *ngIf="!user.is_email_verified" >
 	<div class="inner_container">
 		<p>{{email_verification_message}}</p>
-		<a class="button gost" (click)="send_another_email_verification()">Resend</a>
+		<a class="button gost" (click)="send_verification_email()">Resend</a>
 	</div>
 </section>

@@ -18,7 +18,7 @@
 						<p class="informational_message" [innerHTML]="info_password"></p>
 					</div>
 					<div class="input_group checkbox">
-						<input id="input_stay_loggedin" type="checkbox">
+						<input id="input_stay_loggedin" type="checkbox" [checked]="input_stay_loggedin" (change)="input_stay_loggedin = !input_stay_loggedin">
 						<label for="input_stay_loggedin">Stay logged in.</label>
 					</div>
 				</div>

@@ -94,6 +94,7 @@ section.login{
 						}
 						&.checkbox{
 							overflow: auto;
+							min-height: 15px;
 
 							input{
 								display: inline;
@@ -106,6 +107,7 @@ section.login{
 								float: left;
 								margin: 0 0 0 10px;
 								font-weight: 400;
+								line-height: 17px;
 							}
 						}
 					}

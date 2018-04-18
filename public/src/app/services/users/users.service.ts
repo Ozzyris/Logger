@@ -27,8 +27,8 @@ export class users_service {
 			.then(res => res.json());
 	}
 
-	send_verfication_email( email ): Promise<any>{
-		const url = environment.api_url + 'users/send_verfication_email/' + email;
+	send_verfication_from_email( email ): Promise<any>{
+		const url = environment.api_url + 'users/send-verfication-from-email/' + email;
 		
 		return this.http
 			.get(url, {headers: this.headers})
@@ -37,7 +37,7 @@ export class users_service {
 	}
 
 	get_avatar_from_email( email ): Promise<any>{
-		const url = environment.api_url + 'users/get-avatar/' + email;
+		const url = environment.api_url + 'users/get-avatar-from-email/' + email;
 		
 		return this.http
 			.get(url, {headers: this.headers})
@@ -45,11 +45,29 @@ export class users_service {
 			.then(res => res.json());
 	}
 
-	login( user_credential ): Promise<any>{
-		const url = environment.api_url + 'users/login';
+	login_with_credentials( user_credential ): Promise<any>{
+		const url = environment.api_url + 'users/login-with-credentials';
 		
 		return this.http
 			.post(url, user_credential, {headers: this.headers})
+			.toPromise()
+			.then(res => res.json());
+	}
+
+	get_user_details_from_id( user_id ): Promise<any>{
+		const url = environment.api_url + 'users/get-user-details-from-id/' + user_id;
+		
+		return this.http
+			.get(url, {headers: this.headers})
+			.toPromise()
+			.then(res => res.json());
+	}
+
+	logout(): Promise<any>{
+		const url = environment.api_url + 'users/logout-with-header';
+		
+		return this.http
+			.get(url, {headers: this.headers})
 			.toPromise()
 			.then(res => res.json());
 	}

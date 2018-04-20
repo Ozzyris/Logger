@@ -18,7 +18,9 @@ export class DashboardComponent implements OnInit {
 		given_name: '',
 		family_name: '',
 		email: '',
-		is_email_verified: true,
+		email_verification: {
+			is_email_verified: true
+		},
 		avatar: {
 			initials: '',
 			gradient: '',
@@ -44,7 +46,7 @@ export class DashboardComponent implements OnInit {
 				this.user.given_name = user_details.given_name;
 				this.user.family_name = user_details.family_name;
 				this.user.email = user_details.email;
-				this.user.is_email_verified = user_details.is_email_verified;
+				this.user.email_verification.is_email_verified = user_details.email_verification.is_email_verified;
 				this.user.avatar.initials = user_details.avatar.initials;
 				this.user.avatar.gradient = user_details.avatar.gradient;
 				this.user.avatar.type = user_details.avatar.type;

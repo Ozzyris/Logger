@@ -1,7 +1,8 @@
 var mongoose = require('mongoose')
-	mongoose.Promise = require('bluebird');
+	mongoose.Promise = require('bluebird'),
+	config = require('../config');
 
-var url = 'mongodb://localhost:27017/logger',
+var url = config.database,
 	db = mongoose.createConnection(url);
 
 	db.on('error', console.error.bind(console, 'Mongoose error:'));

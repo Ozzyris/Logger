@@ -15,7 +15,7 @@ var users = new mongoose.Schema({
         type: {type: String}
     },
     email_verification: {
-        is_email_being_verified: {type: Boolean, default: false},
+        is_email_verified: {type: Boolean, default: false},
         email_token:{
             token: {type: String},
             expiration_date: {type: String},
@@ -42,7 +42,7 @@ var users = new mongoose.Schema({
         },
         recorded_auth: [
             {
-                ip: {type: String}
+                ip: {type: String},
                 location: {type: String},
                 browser: {type: String},
                 date: {type: String}
@@ -109,17 +109,19 @@ users.statics.get_user_details_from_id = function( id ){
             .then( user => {
                 if( user ){
                     let cleaned_user = {
+                        given_name: user.given_name,
+                        family_name: user.family_name,
+                        email: user.email,
                         avatar: {
                             gradient: user.avatar.gradient,
                             initials: user.avatar.initials,
                             type: user.avatar.type,
                         },
-                        given_name: user.given_name,
-                        family_name: user.family_name,
-                        email: user.email,
-                        email_verification: user.email_verification
+                        email_verification: {
+                            is_email_verified: user.email_verification.is_email_verified,
+                        }
                     }
-                    resolve( cleaned_user )
+                    resolve( cleaned_user );
                 }else{
                     reject({ message: 'Your id does not exist', code: 'id_not_exist'});
                 }

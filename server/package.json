@@ -1,7 +1,7 @@
 {
-  "name": "ping_master",
+  "name": "Logger",
   "version": "1.0.0",
-  "description": "Full starter pack for a webapp. Including login and sign up",
+  "description": "A good starter with login and other interesting functionnality",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -14,7 +14,9 @@
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "express": "^4.15.4",
+    "jsonwebtoken": "^8.2.1",
     "moment": "^2.22.1",
-    "mongoose": "^5.0.14"
+    "mongoose": "^5.0.14",
+    "morgan": "^1.9.0"
   }
 }

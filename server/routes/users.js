@@ -1,7 +1,9 @@
 // PACKAGES
 const express = require('express'),
-	  router = express.Router(),
-	  Users = require('../models/users').Users;
+	router = express.Router()
+	jwt = require('jsonwebtoken'),
+	config = require('../config'),
+	Users = require('../models/users').Users;
 
 // HELPERS
 var bcrypt = require('../helpers/bcrypt')
@@ -52,6 +54,22 @@ var bcrypt = require('../helpers/bcrypt')
 
 	// SEND CONFIRMATION EMAIL
 	router.get('/send-verfication-from-email/:email', function (req, res) {
+
+
+		const payload = {
+			user_level: 'admin' 
+		};
+		var token = jwt.sign(payload, config.ket_secret, 
+			{
+				expiresIn: "24h",
+        	});
+
+        console.log(token, config.ket_secret);
+
+		// Users.check_active_email_token( req.params.email )
+		// 	.then(token => {
+		// 		console.log(token);
+		// 	})
 		// Users.check_active_email_token( req.params.email )
 		// 	.then(is_active_token => {
 		// 		if(!is_active_token){
@@ -71,8 +89,10 @@ var bcrypt = require('../helpers/bcrypt')
 		// 		res.status(200).json({ message: 'Your verification email has been send', code: 'verification_email_send' });
 		// 	})
 		// 	.catch(error => {
-		// 		es.status(401).json( error );
+		// 		res.status(401).json( error );
 		// 	})
+
+		res.status(200).json({ message: 'Your verification email has been send', code: 'verification_email_send' });
 	});
 
 	//LOGIN USER

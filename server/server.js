@@ -1,13 +1,14 @@
 // PACKAGES
 const express = require('express'),
-	  app = express(),
-	  server = require('http').createServer(app),
-	  bodyParser = require('body-parser'),
-      environments = require('./environments/environment.dev.js');
+    app = express(),
+    server = require('http').createServer(app),
+    bodyParser = require('body-parser'),
+    config = require('./config'),
+    morgan = require('morgan');
 
 // HELPERS
 
-server.listen(environments.environment.port);
+server.listen(config.port);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -23,6 +24,12 @@ app.use((req, res, next)=>{
         next();
     }
 });
+
+//SET GLOBAL VARIABLE
+app.set('ket_secret', config.ket_secret);
+
+// MORGAN Logging the calls
+app.use(morgan('dev'));
 
 // ROUTE
 const usersRouter = require('./routes/users').usersRouter;

@@ -23,7 +23,7 @@
 	</div>
 </nav>
 
-<section class="email_verification" *ngIf="!user.is_email_verified" >
+<section class="email_verification" *ngIf="!user.email_verification.is_email_verified" >
 	<div class="inner_container">
 		<p>{{email_verification_message}}</p>
 		<a class="button gost" (click)="send_verification_email()">Resend</a>

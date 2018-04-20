@@ -54,22 +54,24 @@ var bcrypt = require('../helpers/bcrypt')
 
 	// SEND CONFIRMATION EMAIL
 	router.get('/send-verfication-from-email/:email', function (req, res) {
+		// const payload = {
+		// 	user_level: 'basic' 
+		// };
+		// var token = jwt.sign(payload, config.ket_secret, 
+		// 	{
+		// 		expiresIn: "24h",
+  //       	});
 
+  //       console.log(token, config.ket_secret);
 
-		const payload = {
-			user_level: 'admin' 
-		};
-		var token = jwt.sign(payload, config.ket_secret, 
-			{
-				expiresIn: "24h",
-        	});
-
-        console.log(token, config.ket_secret);
-
-		// Users.check_active_email_token( req.params.email )
-		// 	.then(token => {
-		// 		console.log(token);
-		// 	})
+		Users.check_active_email_token( req.params.email )
+			.then(is_active_token => {
+				if( !is_active_token ){
+					return User.create_email_token( req.params.email );
+				}else{
+					console.log(is_active_token);
+				}
+			})
 		// Users.check_active_email_token( req.params.email )
 		// 	.then(is_active_token => {
 		// 		if(!is_active_token){

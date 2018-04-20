@@ -9,6 +9,7 @@ var users = new mongoose.Schema({
     email: {type: String},
     password: {type: String},
     created_at: {type: Date, default: moment()},
+    level: {type: String, default: 'basic'},
     avatar: {
         initials: {type: String},
         gradient: [String],
@@ -126,6 +127,27 @@ users.statics.get_user_details_from_id = function( id ){
                     reject({ message: 'Your id does not exist', code: 'id_not_exist'});
                 }
             })
+    });
+}
+
+users.statics.check_active_email_token = function( email ){
+    return new Promise((resolve, reject) => {
+        this.findOne({ email : email }).exec()
+            .then( user => {
+                console.log(user) 
+                if( user.email_verification.email_token.token ){
+                    resolve( true );
+                }else{
+                    resolve( false );
+                }
+
+            })
+    });
+}
+
+users.method.create_email_token = function(){
+    return new Promise((resolve, reject) => {
+        
     });
 }
 

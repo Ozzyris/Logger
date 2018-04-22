@@ -86,6 +86,7 @@ var bcrypt = require('../helpers/bcrypt'),
 				return token_manager.check_if_token_is_valid( token_details );
 			})
 			.then( is_token_valid => {
+				console.log(is_token_valid);
 				res.status(200).json( is_token_valid );
 			})
 			.catch(error => {

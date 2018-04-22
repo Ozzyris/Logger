@@ -170,7 +170,7 @@ users.statics.save_email_token_from_email = function( email, token ){
 
 users.statics.get_token_details = function( token ){
     return new Promise((resolve, reject) => {
-        this.findOne({ email_verification.email_token.token: token }).exec()
+        this.findOne({ 'email_verification.email_token.token': token }).exec()
             .then( user => {
                 if( user ){
                     let cleaned_token = {

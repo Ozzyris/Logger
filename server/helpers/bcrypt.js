@@ -1,5 +1,5 @@
 var bcrypt = require('bcryptjs'),
-    Promise = require('bluebird')
+    Promise = require('bluebird');
 
 function hash_password( plain_password ){
     return new Promise((resolve, reject)=>{

@@ -71,4 +71,13 @@ export class users_service {
 			.toPromise()
 			.then(res => res.json());
 	}
+
+	check_verification_email_token( token ): Promise<any>{
+		const url = environment.api_url + 'user/check_verification_email_token/' + token;
+		
+		return this.http
+			.get(url, {headers: this.headers})
+			.toPromise()
+			.then(res => res.json());
+	}
 }

@@ -1,14 +1,13 @@
 // PACKAGES
 const express = require('express'),
-	router = express.Router()
-	jwt = require('jsonwebtoken'),
-	config = require('../config'),
-	Users = require('../models/users').Users;
+	router = express.Router(),
+	Users = require('../models/users').Users,
+	config = require('../config');
 
 // HELPERS
-var bcrypt = require('../helpers/bcrypt')
-
- // req.checkBody('email', 'Email is required').notEmpty()
+var bcrypt = require('../helpers/bcrypt'),
+	token_manager = require('../helpers/token_manager'),
+	mailer = require('../helpers/mailer');
 
 	// CHECK EMAIL
 	router.get('/check-email/:email', function (req, res) {
@@ -54,47 +53,45 @@ var bcrypt = require('../helpers/bcrypt')
 
 	// SEND CONFIRMATION EMAIL
 	router.get('/send-verfication-from-email/:email', function (req, res) {
-		// const payload = {
-		// 	user_level: 'basic' 
-		// };
-		// var token = jwt.sign(payload, config.ket_secret, 
-		// 	{
-		// 		expiresIn: "24h",
-  //       	});
 
-  //       console.log(token, config.ket_secret);
-
-		Users.check_active_email_token( req.params.email )
-			.then(is_active_token => {
-				if( !is_active_token ){
-					return User.create_email_token( req.params.email );
-				}else{
-					console.log(is_active_token);
-				}
+		token_manager.create_email_token()
+			.then(token => {
+				email_token = token;
+				return Users.save_email_token_from_email( req.params.email, token );
 			})
-		// Users.check_active_email_token( req.params.email )
-		// 	.then(is_active_token => {
-		// 		if(!is_active_token){
-		// 			return User.create_email_token( req.params.email );
-		// 		}else{
-		// 			User.delete_email_token( is_active_token )
-		// 				then(is_deleted_token => {
-		// 					return User.create_email_token( req.params.email );
-		// 				})
-		// 		}
-		// 	})
-		// 	.then(email_token => {
-		// 		let url = req.protocol + '://' + req.get('host') + '/' + email_token;
-		// 		return Mailer.send_verification_email(url);
-		// 	})
-		// 	.then(is_email_send => {
-		// 		res.status(200).json({ message: 'Your verification email has been send', code: 'verification_email_send' });
-		// 	})
-		// 	.catch(error => {
-		// 		res.status(401).json( error );
-		// 	})
+			.then(is_saved_token => {
+				return Users.get_user_details_from_email( req.params.email )
+			})
+			.then(user_details => {
+				let url = config.front_end_url + 'email-verification/' + email_token;
+				return mailer.build_email_verification(url, user_details);
+			})
+			.then(html => {
+				let subject = 'Verify your email for Logger';
+				return mailer.send_email( subject ,html );
+			})
+			.then(is_email_send => {
+				console.log(is_email_send);
+				res.status(200).json({ message: 'Your verification email has been send', code: 'verification_email_send' });
+			})
+			.catch(error => {
+				res.status(401).json( error );
+			})
+	});
 
-		res.status(200).json({ message: 'Your verification email has been send', code: 'verification_email_send' });
+	// CHECK IF VERIFICATION EMAIL TOKEN IS VALID
+	router.get('/check_verification_email_token/:token', function (req, res) {
+		Users.get_token_details( req.params.token )
+			.then( token_details => {
+				return token_manager.check_if_token_is_valid( token_details );
+			})
+			.then( is_token_valid => {
+				res.status(200).json( is_token_valid );
+			})
+			.catch(error => {
+				res.status(401).json( error );
+			})
+		
 	});
 
 	//LOGIN USER

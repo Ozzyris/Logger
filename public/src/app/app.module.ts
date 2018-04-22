@@ -14,6 +14,7 @@ import { SetpasswordComponent } from './views/setpassword/setpassword.component'
 import { LandingComponent } from './views/landing/landing.component';
 import { DashboardComponent } from './views/dashboard/dashboard.component';
 import { PagenotfoundComponent } from './views/pagenotfound/pagenotfound.component';
+import { EmailVerificationComponent } from './views/email-verification/email-verification.component';
 
 const appRoutes: Routes = [
 	{ path: 'landing', component: LandingComponent },
@@ -25,7 +26,8 @@ const appRoutes: Routes = [
 	{ path: 'signup', component: SignupComponent },
 	{ path: 'login', component: LoginComponent },
 	{ path: 'forget-password', component: ForgetpasswordComponent },
-	{ path: 'set-password', component: SetpasswordComponent },
+  { path: 'set-password', component: SetpasswordComponent },
+	{ path: 'email-verification/:token', component: EmailVerificationComponent },
 	{ path: 'dashboard', component: DashboardComponent },
 	{ path: '**', component: PagenotfoundComponent }
 ];
@@ -39,7 +41,8 @@ const appRoutes: Routes = [
     SetpasswordComponent,
     LandingComponent,
     DashboardComponent,
-    PagenotfoundComponent
+    PagenotfoundComponent,
+    EmailVerificationComponent
   ],
   imports: [
     BrowserModule,

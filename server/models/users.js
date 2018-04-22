@@ -130,24 +130,75 @@ users.statics.get_user_details_from_id = function( id ){
     });
 }
 
-users.statics.check_active_email_token = function( email ){
+users.statics.get_user_details_from_email = function( email ){
     return new Promise((resolve, reject) => {
         this.findOne({ email : email }).exec()
             .then( user => {
-                console.log(user) 
-                if( user.email_verification.email_token.token ){
-                    resolve( true );
+                if( user ){
+                    let cleaned_user = {
+                        given_name: user.given_name,
+                        family_name: user.family_name,
+                        email: user.email,
+                        avatar: {
+                            gradient: user.avatar.gradient,
+                            initials: user.avatar.initials,
+                            type: user.avatar.type,
+                        }
+                    }
+                    resolve( cleaned_user );
                 }else{
-                    resolve( false );
+                    reject({ message: 'Your id does not exist', code: 'id_not_exist'});
                 }
-
             })
     });
 }
 
-users.method.create_email_token = function(){
+users.statics.save_email_token_from_email = function( email, token ){
     return new Promise((resolve, reject) => {
-        
+        Users.update({ email: email }, {
+            'email_verification.email_token':{
+                token: token,
+                expiration_date: moment().add(6,'h'),
+                date: moment()
+            }
+        }).exec()
+        .then(session =>{
+            resolve(true);
+        })
+    });
+}
+
+users.statics.get_token_details = function( token ){
+    return new Promise((resolve, reject) => {
+        this.findOne({ email_verification.email_token.token: token }).exec()
+            .then( user => {
+                if( user ){
+                    let cleaned_token = {
+                        token: user.email_verification.email_token.token,
+                        expiration_date: user.email_verification.email_token.expiration_date,
+                        date: user.email_verification.email_token.date,
+                    }
+                    resolve( cleaned_token );
+                }else{
+                    reject({ message: 'Your token does not exist', code: 'token_not_exist'});
+                }
+            })
+            
+    });
+}
+
+users.statics.delete_email_token_from_email = function( email ){
+    return new Promise((resolve, reject) => {
+        Users.update({email: email}, {
+            $unset:{
+                'email_verification.email_token.token': '',
+                'email_verification.email_token.expiration_date': '',
+                'email_verification.email_token.date': ''
+            }
+        }).exec()
+        .then(session =>{
+            resolve(true);
+        })
     });
 }
 

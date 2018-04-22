@@ -32,6 +32,6 @@ app.set('ket_secret', config.ket_secret);
 app.use(morgan('dev'));
 
 // ROUTE
-const usersRouter = require('./routes/users').usersRouter;
+const usersRouter = require('./controllers/users').usersRouter;
 
 app.use('/users/', usersRouter);

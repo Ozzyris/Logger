@@ -64,9 +64,11 @@ var bcrypt = require('../helpers/bcrypt'),
 			})
 			.then(user_details => {
 				let url = config.front_end_url + 'email-verification/' + email_token;
+				console.log(user_details, url);
 				return mailer.build_email_verification(url, user_details);
 			})
 			.then(html => {
+				console.log(html);
 				let subject = 'Verify your email for Logger';
 				return mailer.send_email( subject ,html );
 			})
@@ -75,6 +77,7 @@ var bcrypt = require('../helpers/bcrypt'),
 				res.status(200).json({ message: 'Your verification email has been send', code: 'verification_email_send' });
 			})
 			.catch(error => {
+				console.log(error);
 				res.status(401).json( error );
 			})
 	});

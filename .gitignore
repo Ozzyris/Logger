@@ -44,13 +44,10 @@
 /public/Thumbs.db
 
 
-
-
 # SERVER
 # dependencies
 /server/node_modules
-/server/src/environments
-
+/server/config.js
 
 
 #DATABASE

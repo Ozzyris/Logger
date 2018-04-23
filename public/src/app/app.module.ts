@@ -9,11 +9,11 @@ import { HttpModule } from '@angular/http';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './views/login/login.component';
 import { SignupComponent } from './views/signup/signup.component';
-import { ForgetpasswordComponent } from './views/forgetpassword/forgetpassword.component';
-import { SetpasswordComponent } from './views/setpassword/setpassword.component';
+import { ForgotpasswordComponent } from './views/forgot-password/forgot-password.component';
+import { SetpasswordComponent } from './views/set-password/set-password.component';
 import { LandingComponent } from './views/landing/landing.component';
 import { DashboardComponent } from './views/dashboard/dashboard.component';
-import { PagenotfoundComponent } from './views/pagenotfound/pagenotfound.component';
+import { PagenotfoundComponent } from './views/page-not-found/page-not-found.component';
 import { EmailVerificationComponent } from './views/email-verification/email-verification.component';
 
 const appRoutes: Routes = [
@@ -25,8 +25,8 @@ const appRoutes: Routes = [
   	},
 	{ path: 'signup', component: SignupComponent },
 	{ path: 'login', component: LoginComponent },
-	{ path: 'forget-password', component: ForgetpasswordComponent },
-  { path: 'set-password', component: SetpasswordComponent },
+	{ path: 'forget-password', component: ForgotpasswordComponent },
+  { path: 'set-password/:token', component: SetpasswordComponent },
 	{ path: 'email-verification/:token', component: EmailVerificationComponent },
 	{ path: 'dashboard', component: DashboardComponent },
 	{ path: '**', component: PagenotfoundComponent }
@@ -37,7 +37,7 @@ const appRoutes: Routes = [
     AppComponent,
     LoginComponent,
     SignupComponent,
-    ForgetpasswordComponent,
+    ForgotpasswordComponent,
     SetpasswordComponent,
     LandingComponent,
     DashboardComponent,

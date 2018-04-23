@@ -27,8 +27,8 @@ export class users_service {
 			.then(res => res.json());
 	}
 
-	send_verfication_from_email( email ): Promise<any>{
-		const url = environment.api_url + 'users/send-verfication-from-email/' + email;
+	get_avatar_from_email( email ): Promise<any>{
+		const url = environment.api_url + 'users/get-avatar-from-email/' + email;
 		
 		return this.http
 			.get(url, {headers: this.headers})
@@ -36,8 +36,8 @@ export class users_service {
 			.then(res => res.json());
 	}
 
-	get_avatar_from_email( email ): Promise<any>{
-		const url = environment.api_url + 'users/get-avatar-from-email/' + email;
+	get_avatar_from_token( token ): Promise<any>{
+		const url = environment.api_url + 'users/get-avatar-from-token/' + token;
 		
 		return this.http
 			.get(url, {headers: this.headers})
@@ -72,11 +72,42 @@ export class users_service {
 			.then(res => res.json());
 	}
 
+
+	// VERIFICATION EMAIL
+	send_verfication_from_email( email ): Promise<any>{
+		const url = environment.api_url + 'users/send-verfication-from-email/' + email;
+		
+		return this.http
+			.get(url, {headers: this.headers})
+			.toPromise()
+			.then(res => res.json());
+	}
+
 	check_verification_email_token( token ): Promise<any>{
 		const url = environment.api_url + 'users/check_verification_email_token/' + token;
 		
 		return this.http
 			.get(url, {headers: this.headers})
+			.toPromise()
+			.then(res => res.json());
+	}
+
+	//FORGOT PASSWORD
+	send_forgot_password_from_email( email ): Promise<any>{
+		const url = environment.api_url + 'users/send-forgot-password-from-email/' + email;
+		
+		return this.http
+			.get(url, {headers: this.headers})
+			.toPromise()
+			.then(res => res.json());
+	}
+
+	//SET NEW PASSWORD
+	set_password( password_details ): Promise<any>{
+		const url = environment.api_url + 'users/set-password';
+		
+		return this.http
+			.post(url, password_details, {headers: this.headers})
 			.toPromise()
 			.then(res => res.json());
 	}

@@ -11,17 +11,18 @@ import { users_service } from '../../services/users/users.service';
   providers: [users_service]
 })
 export class EmailVerificationComponent implements OnInit {
-	token: any;
+	token: string;
 
-	constructor(private route: ActivatedRoute, private users_service: users_service,){}
+	constructor( private route: ActivatedRoute, private users_service: users_service ){}
 	ngOnInit(){
 		this.route.params.subscribe( params =>
 			this.users_service.check_verification_email_token( params['token'] )
 				.then(response => {
-					this.token = response;
+					this.token = response.message;
 				})
 				.catch(error => {
-					this.token = error;
+					let error_content = JSON.parse(error._body);
+					this.token = error_content.message;
 				})
     	)
 	}

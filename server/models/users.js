@@ -78,6 +78,19 @@ users.statics.get_avatar_from_email = function (email){
     })
 };
 
+users.statics.get_avatar_from_token = function (token){
+    return new Promise((resolve, reject) => {
+        this.findOne({ 'password_reset.password_token.token' : token }).exec()
+            .then( user => {
+                if( user ){
+                    resolve( user.avatar );
+                }else{
+                    reject({ message: 'Your email does not exist', code: 'email_not_exist'});
+                }
+            })
+    })
+};
+
 users.statics.get_user_id_from_email = function (email){
     return new Promise((resolve, reject) => {
         this.findOne({ email : email }).exec()
@@ -187,9 +200,20 @@ users.statics.get_token_details = function( token ){
     });
 }
 
-users.statics.delete_email_token_from_email = function( email ){
+users.statics.update_email_verification_from_token = function( token ){
     return new Promise((resolve, reject) => {
-        Users.update({email: email}, {
+        Users.update({ 'email_verification.email_token.token': token }, {
+            'email_verification.is_email_verified': true
+        }).exec()
+        .then(session =>{
+            resolve(true);
+        })
+    });
+}
+
+users.statics.delete_email_token_from_token = function( token ){
+    return new Promise((resolve, reject) => {
+        Users.update({ 'email_verification.email_token.token': token }, {
             $unset:{
                 'email_verification.email_token.token': '',
                 'email_verification.email_token.expiration_date': '',
@@ -202,146 +226,53 @@ users.statics.delete_email_token_from_email = function( email ){
     });
 }
 
-// users.methods.verificationEmail = Promise.method(function(url){
-//     var randomStr = UUID();
+// FORGOT PASSWORD
+users.statics.save_password_token_from_email = function( email, token ){
+    return new Promise((resolve, reject) => {
+        Users.update({ email: email }, {
+            'password_reset':{
+                is_password_being_reset: true,
+                password_token:{
+                    token: token,
+                    expiration_date: moment().add(6,'h'),
+                    date: moment()
+                }
+            }
+        }).exec()
+        .then(session =>{
+            resolve(true);
+        })
+    });
+}
 
-//     var link = url+"/verify-email/"+randomStr
+users.statics.get_token_details_from_token = function( token ){
+    return new Promise((resolve, reject) => {
+        this.findOne({ 'password_reset.password_token.token': token }).exec()
+            .then( user => {
+                if( user ){
+                    let cleaned_token = {
+                        token: user.password_reset.password_token.token,
+                        expiration_date: user.password_reset.password_token.expiration_date,
+                        date: user.password_reset.password_token.date,
+                    }
+                    resolve( cleaned_token );
+                }else{
+                    reject({ message: 'Your token does not exist', code: 'token_not_exist'});
+                }
+            })
+    });
+}
 
-//     var mail ={
-//         to: this.email,
-//         subject : 'Carrott account verification',
-//         html : mailer.linkEmail(
-//             'Verify account',
-//             'Hey from the team at yodlee<br>Thanks for signing up and using our app<br>Click the link below to verify tour yodlee account',
-//             link,
-//             'Verify email'
-//         )
-//     }
-
-//     Users.update({_id: this._id}, {$set: {verifyEmailLink: randomStr}}).exec();
-//     mailer.send(mail)
-// })
-
-// users.methods.createSession = function(){
-//     return new Promise((resolve, reject)=>{
-//         var token = UUID()
-
-//         Users.update({_id: this._id}, {
-//             $push:{
-//                 auth: {
-//                     token: token, expiration: moment().add(6,'h')
-//                 }
-//             }
-//         }).exec()
-//         .then(session =>{
-//             resolve(token)
-//         })
-//         .catch(error=>{
-//             reject(error)
-//         })
-//     })
-// };
-
-// users.statics.deleteSession = function(token){
-//     console.log(token)
-//     return new Promise((resolve, reject)=>{
-//         this.findOneAndUpdate({'auth.token': token}, {$pull:{auth:{token: token}}}).exec()
-//             .then(removed=>{
-//                 console.log(removed)
-//                 if(removed.nModified === 0){
-//                     reject({message: "Auth token not found"})
-//                     return;
-//                 }
-//                 resolve({message: "Successfully logged out"})
-//             })
-//             .catch(error=>{
-//                 reject(error)
-//             })
-//     })
-// };
-
-// users.statics.findBySession = function(token){
-//     return new Promise((resolve, reject)=>{
-//         // this.findOne({'auth.token' :  token}).exec()
-//         this.findOne({auth:{$elemMatch:{token: token, expiration: {$gte: moment()}}}}).exec()
-//             .then(found=>{
-//                 if(!found){
-//                     reject({message: 'User not found', status: 401})
-//                 }
-//                 resolve(found)
-//             })
-//             .catch(error=>{
-//                 reject(error)
-//             })
-//     })
-// };
-
-
-// users.methods.createResetPasswordToken = function(){
-//     return new Promise((resolve, reject)=>{
-//         var token = UUID()
-//         Users.update({_id: this._id}, {$set:{
-//             resetPassword:{
-//                 token: token, expiration: moment().add(6,'h')
-//             }
-//         }
-//         }).exec()
-//             .then(updated=>{
-//                 if(updated.n ===0){
-//                     reject({message:"Couldn't create reset token"})
-//                 }
-//                 else{
-//                     resolve(token)
-//                 }
-//             })
-//     })
-// };
-
-// users.statics.findByPasswordToken = function(token){
-//     return new Promise((resolve, reject)=>{
-//         this.findOne({'resetPassword.token': token, 'resetPassword.expiration': {$lt: moment()}}).exec()
-//             .then(found=>{
-//                 if(!found){
-//                     reject({message: 'Token not valid'})
-//                 }
-//                 else{
-//                     resolve(found)
-//                 }
-//             })
-//     })
-// };
-
-// users.methods.setPassword = function(password){
-//     return new Promise((resolve, reject)=>{
-//         bcrypt.hash(password)
-//             .then(hashedPassword=>{
-//                 return Users.update({_id: this._id}, {password: hashedPassword}).exec()
-//             })
-//             .then(updated=>{
-//                 if(updated.n ===0){
-//                     reject({message: 'Oops something went wrong when updating your password'})
-//                 }
-//                 else{
-//                     resolve({message: 'Password successfully set'})
-//                 }
-//             })
-
-//     })
-// };
-
-// users.methods.clearResetPassword = function(){
-//     return new Promise((resolve, reject)=>{
-//         console.log(this._id)
-//         Users.update({_id: this._id},{$unset:{'resetPassword.token': true,  'resetPassword.expiration': true}}).exec()
-//             .then(updated=>{
-//                 console.log(updated)
-//                 if(updated.n === 0){
-//                     reject({message: 'Oops something went wrong when clearing old password token'})
-//                 }
-//                 resolve(true)
-//             })
-//     })
-// }
+users.statics.update_password_from_token = function( password details ){
+    return new Promise((resolve, reject) => {
+        Users.update({'password_reset.password_token.token': password.token }, {
+            'email_verification.is_email_verified': true
+        }).exec()
+        .then(session =>{
+            resolve(true);
+        })
+    });
+}
 
 var Users = mongoose.DB.model('Users', users);
 

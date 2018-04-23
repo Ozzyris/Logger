@@ -20,11 +20,22 @@ var bcrypt = require('../helpers/bcrypt'),
 			})
 	});
 
-	// GET AVATAR
+	// GET AVATAR FROM EMAIL
 	router.get('/get-avatar-from-email/:email', function (req, res) {
 		Users.get_avatar_from_email( req.params.email )
 			.then( is_email_unique => {
 				res.status(200).json(is_email_unique);
+			})
+			.catch(error => {
+				res.status(401).json( error );
+			})
+	});
+
+	// GET AVATAR FROM TOKEN
+	router.get('/get-avatar-from-token/:token', function (req, res) {
+		Users.get_avatar_from_token( req.params.token )
+			.then( avatar => {
+				res.status(200).json(avatar);
 			})
 			.catch(error => {
 				res.status(401).json( error );
@@ -49,53 +60,6 @@ var bcrypt = require('../helpers/bcrypt'),
 			.catch( error => {
 				res.status(401).json( error );
 			})
-	});
-
-	// SEND CONFIRMATION EMAIL
-	router.get('/send-verfication-from-email/:email', function (req, res) {
-
-		token_manager.create_email_token()
-			.then(token => {
-				email_token = token;
-				return Users.save_email_token_from_email( req.params.email, token );
-			})
-			.then(is_saved_token => {
-				return Users.get_user_details_from_email( req.params.email )
-			})
-			.then(user_details => {
-				let url = config.front_end_url + 'email-verification/' + email_token;
-				console.log(user_details, url);
-				return mailer.build_email_verification(url, user_details);
-			})
-			.then(html => {
-				console.log(html);
-				let subject = 'Verify your email for Logger';
-				return mailer.send_email( subject ,html );
-			})
-			.then(is_email_send => {
-				console.log(is_email_send);
-				res.status(200).json({ message: 'Your verification email has been send', code: 'verification_email_send' });
-			})
-			.catch(error => {
-				console.log(error);
-				res.status(401).json( error );
-			})
-	});
-
-	// CHECK IF VERIFICATION EMAIL TOKEN IS VALID
-	router.get('/check_verification_email_token/:token', function (req, res) {
-		Users.get_token_details( req.params.token )
-			.then( token_details => {
-				return token_manager.check_if_token_is_valid( token_details );
-			})
-			.then( is_token_valid => {
-				console.log(is_token_valid);
-				res.status(200).json( is_token_valid );
-			})
-			.catch(error => {
-				res.status(401).json( error );
-			})
-		
 	});
 
 	//LOGIN USER
@@ -139,6 +103,119 @@ var bcrypt = require('../helpers/bcrypt'),
 				res.status(401).json( error );
 			})
 		
+	});
+
+	// SEND CONFIRMATION EMAIL
+	router.get('/send-verfication-from-email/:email', function (req, res) {
+		let email_token;
+
+		token_manager.create_token()
+			.then(token => {
+				email_token = token;
+				return Users.save_email_token_from_email( req.params.email, token );
+			})
+			.then(is_saved_token => {
+				return Users.get_user_details_from_email( req.params.email )
+			})
+			.then(user_details => {
+				let url = config.front_end_url + 'email-verification/' + email_token;
+				return mailer.build_email_verification(url, user_details);
+			})
+			.then(html => {
+				let subject = 'Verify your email for Logger';
+				return mailer.send_email( subject ,html );
+			})
+			.then(is_email_send => {
+				res.status(200).json({ message: 'Your verification email has been send', code: 'verification_email_send' });
+			})
+			.catch(error => {
+				res.status(401).json( error );
+			})
+	});
+
+	// CHECK IF VERIFICATION EMAIL TOKEN IS VALID
+	router.get('/check_verification_email_token/:token', function (req, res) {
+		Users.get_token_details( req.params.token )
+			.then( token_details => {
+				return token_manager.check_if_token_is_valid( token_details );
+			})
+			.then( is_token_valid => {
+				if(is_token_valid){
+					return Users.update_email_verification_from_token( req.params.token );
+				}else{
+					res.status(401).json({ message: 'Your token is expired, please send another verification mail', code: 'token_expired' });
+				}
+			})
+			.then(is_email_verification_updated => {
+				return Users.delete_email_token_from_token( req.params.token );
+			})
+			.then(is_email_token_deleted => {
+				res.status(200).json({ message: 'Your email has been verified', code: 'email_verified' });
+			})
+			.catch(error => {
+				res.status(401).json( error );
+			})
+	});
+
+	// SEND FORGOT PASSWORD EMAIL
+	router.get('/send-forgot-password-from-email/:email', function (req, res) {
+		let password_token;
+		let given_name;
+
+		token_manager.create_token()
+			.then(token => {
+				password_token = token;
+				return Users.save_password_token_from_email( req.params.email, token );
+			})
+			.then(is_saved_token => {
+				return Users.get_user_details_from_email( req.params.email )
+			})
+			.then(user_details => {
+				let url = config.front_end_url + 'set-password/' + password_token;
+				given_name = user_details.given_name;
+				return mailer.build_email_forgot_password(url, user_details);
+			})
+			.then(html => {
+				let subject = 'Forgot your password ' + given_name + '?';
+				return mailer.send_email( subject ,html );
+			})
+			.then(is_email_send => {
+				res.status(200).json({ message: 'Your forgot password email has been send', code: 'forgot_password_email_send' });
+			})
+			.catch(error => {
+				console.log(error);
+				res.status(401).json( error );
+			})
+	});
+
+	//SET PASSWORD
+	router.post('/set-password', function (req, res) {
+		let password_details = {
+			token: req.body.token,
+			password: req.body.password
+		}
+		console.log(password_details);
+
+		Users.get_token_details_from_token( password_details.token )
+			.then( token_details => {
+				return token_manager.check_if_token_is_valid( token_details );
+			})
+			.then(is_token_valid => {
+				return bcrypt.hash_password( password_details.password );
+			})
+			.then(password_hash => {
+				password_details.password = password_hash;
+				return Users.update_password_from_token( password_details );
+			})
+			.then(is_password_updated => {
+				return Users.delete_password_token_from_token( password_details );
+			})
+			.then(is_token_deleted => {
+				res.status(200).json({ user_id: user_id });
+			})
+			.catch( error => {
+				res.status(401).json( error );
+			});
 	});
 
 module.exports = {

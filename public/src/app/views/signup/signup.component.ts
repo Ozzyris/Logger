@@ -90,7 +90,6 @@ export class SignupComponent implements OnInit {
 	avatar_generator(){
 		this.initials = this.input_given_name.charAt(0).toUpperCase() + this.input_family_name.charAt(0).toUpperCase();
 		this.gradient_style = {"background": 'linear-gradient(to right, #' + this.gradient_color[0] + ', #' +this.gradient_color[1] + ')'}
-
 	}
 
 	password_tester( password ){

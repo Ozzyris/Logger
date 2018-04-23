@@ -263,10 +263,26 @@ users.statics.get_token_details_from_token = function( token ){
     });
 }
 
-users.statics.update_password_from_token = function( password details ){
+users.statics.update_password_from_token = function( password_details ){
     return new Promise((resolve, reject) => {
         Users.update({'password_reset.password_token.token': password.token }, {
-            'email_verification.is_email_verified': true
+            'password_reset.is_password_being_reset': false,
+            password: password_details.password
+        }).exec()
+        .then(session =>{
+            resolve(true);
+        })
+    });
+}
+
+users.statics.delete_password_token_from_token = function( token ){
+    return new Promise((resolve, reject) => {
+        Users.update({ 'password_reset.password_token.token': token }, {
+            $unset:{
+                'password_reset.password_token.token': '',
+                'password_reset.password_token.expiration_date': '',
+                'password_reset.password_token.date': ''
+            }
         }).exec()
         .then(session =>{
             resolve(true);

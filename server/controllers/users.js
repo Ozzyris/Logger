@@ -208,7 +208,7 @@ var bcrypt = require('../helpers/bcrypt'),
 				return Users.update_password_from_token( password_details );
 			})
 			.then(is_password_updated => {
-				return Users.delete_password_token_from_token( password_details );
+				return Users.delete_password_token_from_token( password_details.token );
 			})
 			.then(is_token_deleted => {
 				res.status(200).json({ user_id: user_id });

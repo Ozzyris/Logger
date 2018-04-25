@@ -34,8 +34,9 @@ var users = new mongoose.Schema({
     auth_record: {
         active_auth: {
             ip: {type: String},
-            location: {type: String},
+            country: {type: String},
             browser: {type: String},
+            os: {type: String},
             date: {type: String},
             expiration_date: {type: String},
             token: {type: String},
@@ -44,8 +45,9 @@ var users = new mongoose.Schema({
         recorded_auth: [
             {
                 ip: {type: String},
-                location: {type: String},
+                country: {type: String},
                 browser: {type: String},
+                os: {type: String},
                 date: {type: String}
             }
         ]
@@ -85,7 +87,7 @@ users.statics.get_avatar_from_token = function (token){
                 if( user ){
                     resolve( user.avatar );
                 }else{
-                    reject({ message: 'Your email does not exist', code: 'email_not_exist'});
+                    reject({ message: 'Your token does not exist', code: 'token_not_exist'});
                 }
             })
     })
@@ -265,7 +267,8 @@ users.statics.get_token_details_from_token = function( token ){
 
 users.statics.update_password_from_token = function( password_details ){
     return new Promise((resolve, reject) => {
-        Users.update({'password_reset.password_token.token': password.token }, {
+        console.log(password_details);
+        Users.update({'password_reset.password_token.token': password_details.token }, {
             'password_reset.is_password_being_reset': false,
             password: password_details.password
         }).exec()

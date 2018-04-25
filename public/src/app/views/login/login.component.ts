@@ -94,6 +94,8 @@ export class LoginComponent implements OnInit {
 			password: this.input_password,
 			stay_loggedin: this.input_stay_loggedin
 		}
+		//https://ipapi.co/json/
+		//console.log(navigator);
 
 		this.users_service.login_with_credentials( user )
 			.then( user_detail => {

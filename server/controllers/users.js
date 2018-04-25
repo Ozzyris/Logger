@@ -66,7 +66,8 @@ var bcrypt = require('../helpers/bcrypt'),
 	router.post('/login-with-credentials', function (req, res) {
 		let user = {
 			email: req.body.email,
-			password: req.body.password
+			password: req.body.password,
+			stay_loggedin : req.body.stay_loggedin
 		}
 
 		Users.get_password_from_email( user.email )
@@ -81,11 +82,19 @@ var bcrypt = require('../helpers/bcrypt'),
 				}
 			})
 			.then(user_id => {
+				// create JWT session with the user id | timestamp will differ is the staylogged is checked
+				// save session with the other payload in the db
 				res.status(200).json({ user_id: user_id });
 			})
 			.catch( error => {
 				res.status(401).json( error );
 			});
+
+			// let token_test = create_jwt_token();
+// check_if_jwt_token_is_valid( token_test )
+	// .then(payload => {
+		// console.log(payload);
+	// })
 	});
 
 	// LOGOUT WITH HEADER
@@ -194,14 +203,17 @@ var bcrypt = require('../helpers/bcrypt'),
 			token: req.body.token,
 			password: req.body.password
 		}
-		console.log(password_details);
 
 		Users.get_token_details_from_token( password_details.token )
 			.then( token_details => {
 				return token_manager.check_if_token_is_valid( token_details );
 			})
 			.then(is_token_valid => {
-				return bcrypt.hash_password( password_details.password );
+				if(is_token_valid){
+					return bcrypt.hash_password( password_details.password );
+				}else{
+					res.status(401).json({ message: 'Your token is expired, please start over', code: 'token_expired' });
+				}
 			})
 			.then(password_hash => {
 				password_details.password = password_hash;
@@ -211,7 +223,7 @@ var bcrypt = require('../helpers/bcrypt'),
 				return Users.delete_password_token_from_token( password_details.token );
 			})
 			.then(is_token_deleted => {
-				res.status(200).json({ user_id: user_id });
+				res.status(200).json({ message: 'Your password has been updated', code: 'password_updated' });
 			})
 			.catch( error => {
 				res.status(401).json( error );

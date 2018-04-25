@@ -5,6 +5,9 @@ import { RouterModule, Routes } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
+//NON NATIVE PLUGIN
+import { Ng2DeviceDetectorModule } from 'ng2-device-detector';
+
 // VIEWS
 import { AppComponent } from './app.component';
 import { LoginComponent } from './views/login/login.component';
@@ -48,7 +51,8 @@ const appRoutes: Routes = [
     BrowserModule,
     RouterModule.forRoot(appRoutes),
     FormsModule,
-    HttpModule
+    HttpModule,
+    Ng2DeviceDetectorModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]

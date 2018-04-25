@@ -2,6 +2,7 @@ import { Component, OnInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Rx';
 import { map } from 'rxjs/operators';
+import { Ng2DeviceService } from 'ng2-device-detector';
 
 //services
 import { users_service } from '../../services/users/users.service';
@@ -30,7 +31,7 @@ export class LoginComponent implements OnInit {
 	gradient_style: any;
 	initials: string = '';
 
-	constructor( private router:Router, private elementRef: ElementRef, private users_service: users_service, private validator_service: validator_service ){
+	constructor( private router:Router, private elementRef: ElementRef, private users_service: users_service, private validator_service: validator_service, private deviceService: Ng2DeviceService ){
 		Observable.fromEvent(elementRef.nativeElement, 'keyup')
 			.map(() => this.input_email)
 			.debounceTime( 600 )
@@ -39,7 +40,14 @@ export class LoginComponent implements OnInit {
 				this.get_avatar( email );
 			});
 	}
-	ngOnInit(){}
+	ngOnInit(){
+		this.get_navigator_details();
+	}
+
+	get_navigator_details(){
+		let deviceInfo = this.deviceService.getDeviceInfo();
+		console.log(deviceInfo);
+	}
 
 	get_avatar( email ){
 		if( this.validator_service.email_test( email ) == false ) {
@@ -95,7 +103,7 @@ export class LoginComponent implements OnInit {
 			stay_loggedin: this.input_stay_loggedin
 		}
 		//https://ipapi.co/json/
-		//console.log(navigator);
+		
 
 		this.users_service.login_with_credentials( user )
 			.then( user_detail => {

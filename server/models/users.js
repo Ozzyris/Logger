@@ -37,7 +37,9 @@ var users = new mongoose.Schema({
             country: {type: String},
             browser: {type: String},
             os: {type: String},
-            date: {type: String},
+            device: {type: String},
+            creation_date: {type: String},
+            last_modification_date: {type: String},
             expiration_date: {type: String},
             token: {type: String},
 
@@ -48,7 +50,9 @@ var users = new mongoose.Schema({
                 country: {type: String},
                 browser: {type: String},
                 os: {type: String},
-                date: {type: String}
+                device: {type: String},
+                creation_date: {type: String}
+                last_modification_date: {type: String}
             }
         ]
     }

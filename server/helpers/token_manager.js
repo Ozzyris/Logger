@@ -20,8 +20,8 @@ function create_jwt_token( details ){
 	if (typeof details !== 'object'){ //CREATE A OBJECT IF NONE
 		details = {}
 	}
-	if (!details.maxAge || typeof details.maxAge !== 'number'){ //CREATE A TIMESTAMP IF NONE
-		details.maxAge = 3600
+	if (!details.expiration_date || typeof details.expiration_date !== 'number'){ //CREATE A TIMESTAMP IF NONE
+		details.expiration_date = 3600
 	}
 	if(!details.payload || typeof details !== 'object'){ // CREATE A PAYLOAD IF NONE
 		details.payload = {}
@@ -30,7 +30,7 @@ function create_jwt_token( details ){
 	let token = jwt.sign({
 			data: details.payload
 		}, config.ket_secret, {
-		expiresIn: details.maxAge,
+		expiresIn: details.expiration_date,
 		algorithm: 'HS256'
 	})
   	return token

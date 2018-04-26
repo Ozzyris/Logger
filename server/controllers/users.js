@@ -69,6 +69,16 @@ var bcrypt = require('../helpers/bcrypt'),
 			password: req.body.password,
 			stay_loggedin : req.body.stay_loggedin
 		}
+		let session = {
+			token: '',
+			device_details: {
+				ip: req.body.device_details.ip,
+				country: req.body.device_details.country,
+				browser: req.body.device_details.browser,
+				os: req.body.device_details.os,
+				device: req.body.device_details.device
+			}
+		}
 
 		Users.get_password_from_email( user.email )
 			.then( db_password => {
@@ -82,19 +92,24 @@ var bcrypt = require('../helpers/bcrypt'),
 				}
 			})
 			.then(user_id => {
-				// create JWT session with the user id | timestamp will differ is the staylogged is checked
-				// save session with the other payload in the db
-				res.status(200).json({ user_id: user_id });
+				let token_details = {
+						expiration_date: '1d',
+						payload: {
+							id: user_id
+						}
+					};
+
+				if( user.stay_loggedin ){ token_details.expiration_date = '7d'; }
+				session.token = token_manager.create_jwt_token();
+
+				return Users.save_session_detail_from_id( session, user_id );
+			})
+			.then(is_session_saved => {
+				res.status(200).json({ session: session.token });
 			})
 			.catch( error => {
 				res.status(401).json( error );
 			});
-
-			// let token_test = create_jwt_token();
-// check_if_jwt_token_is_valid( token_test )
-	// .then(payload => {
-		// console.log(payload);
-	// })
 	});
 
 	// LOGOUT WITH HEADER

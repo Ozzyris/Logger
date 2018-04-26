@@ -7,13 +7,14 @@ import { Ng2DeviceService } from 'ng2-device-detector';
 //services
 import { users_service } from '../../services/users/users.service';
 import { validator_service } from '../../services/validator/validator.service';
+import { system_service } from '../../services/system/system.service';
 
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
-  providers: [users_service, validator_service]
+  providers: [users_service, system_service, validator_service]
 })
 export class LoginComponent implements OnInit {
 	//inputs
@@ -31,7 +32,9 @@ export class LoginComponent implements OnInit {
 	gradient_style: any;
 	initials: string = '';
 
-	constructor( private router:Router, private elementRef: ElementRef, private users_service: users_service, private validator_service: validator_service, private deviceService: Ng2DeviceService ){
+	user_information: any;
+
+	constructor( private router:Router, private elementRef: ElementRef, private users_service: users_service, private system_service: system_service, private validator_service: validator_service, private deviceService: Ng2DeviceService ){
 		Observable.fromEvent(elementRef.nativeElement, 'keyup')
 			.map(() => this.input_email)
 			.debounceTime( 600 )
@@ -45,8 +48,22 @@ export class LoginComponent implements OnInit {
 	}
 
 	get_navigator_details(){
-		let deviceInfo = this.deviceService.getDeviceInfo();
-		console.log(deviceInfo);
+		let device_info = this.deviceService.getDeviceInfo();
+		this.user_information = {
+			device_details: {
+				ip: '',
+				country: '',
+				browser: device_info.browser,
+				os: device_info.os,
+				device: device_info.device
+			}
+		}
+
+		this.system_service.get_device_info()
+			.then(external_devices_details => {
+				this.user_information.device_details.ip = external_devices_details.ip;
+				this.user_information.device_details.country = external_devices_details.country_name;
+			})
 	}
 
 	get_avatar( email ){
@@ -97,27 +114,20 @@ export class LoginComponent implements OnInit {
 	}
 
 	login(){
-		let user = {
-			email: this.input_email,
-			password: this.input_password,
-			stay_loggedin: this.input_stay_loggedin
-		}
-		//https://ipapi.co/json/
-		
+		this.user_information.email = this.input_email;
+		this.user_information.password = this.input_password;
+		this.user_information.stay_loggedin = this.input_stay_loggedin;
 
-		this.users_service.login_with_credentials( user )
+		this.users_service.login_with_credentials( this.user_information )
 			.then( user_detail => {
 				if( user_detail ){
-					let user = {
-						id: user_detail.user_id
-					}
-					localStorage.setItem("user", JSON.stringify(user));
+					localStorage.setItem("session", JSON.stringify(user_detail.session));
 					this.button_class = 'button loading success';
 					this.button_text = '<span class="icon"></span>';
 					let timer = setTimeout(() => {  
 						this.router.navigate(['dashboard']);
 						clearTimeout(timer);
-					}, 1500);
+					}, 1000);
 				}
 			})
 			.catch(error => {

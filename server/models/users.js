@@ -33,26 +33,28 @@ var users = new mongoose.Schema({
     },
     auth_record: {
         active_auth: {
-            ip: {type: String},
-            country: {type: String},
-            browser: {type: String},
-            os: {type: String},
-            device: {type: String},
             creation_date: {type: String},
             last_modification_date: {type: String},
-            expiration_date: {type: String},
             token: {type: String},
-
-        },
-        recorded_auth: [
-            {
+            device_details: {
                 ip: {type: String},
                 country: {type: String},
                 browser: {type: String},
                 os: {type: String},
                 device: {type: String},
-                creation_date: {type: String}
-                last_modification_date: {type: String}
+            }
+        },
+        recorded_auth: [
+            {
+                creation_date: {type: String},
+                last_modification_date: {type: String},
+                device_details: {
+                    ip: {type: String},
+                    country: {type: String},
+                    browser: {type: String},
+                    os: {type: String},
+                    device: {type: String},
+                }
             }
         ]
     }
@@ -109,6 +111,31 @@ users.statics.get_user_id_from_email = function (email){
             })
     })
 };
+
+users.statics.save_session_detail_from_id = function (session, user_id){
+    return new Promise((resolve, reject) => {
+        console.log(session);
+        Users.update({ _id: user_id }, {
+            auth_record: {
+                active_auth: {
+                    creation_date: moment(),
+                    last_modification_date: moment(),
+                    token: session.token,
+                    device_details: {
+                        ip: session.device_details.ip,
+                        country: session.device_details.country,
+                        browser: session.device_details.browser,
+                        os: session.device_details.os,
+                        device: session.device_details.device,
+                    }
+                }
+            }
+        }).exec()
+        .then(session =>{
+            resolve(true);
+        })
+    });
+}
 
 users.statics.get_password_from_email = function( email ){
     return new Promise((resolve, reject) => {

@@ -1,4 +1,4 @@
-var jwt = require('jsonwebtoken'),
+var uuid = require('uuid/v4'),
 	uniqueid = require('uniqid'),
 	Promise = require('bluebird'),
 	config = require('../config'),
@@ -16,24 +16,8 @@ function check_if_token_is_valid( token_details ){
 	})
 }
 
-function create_jwt_token( details ){
-	if (typeof details !== 'object'){ //CREATE A OBJECT IF NONE
-		details = {}
-	}
-	if (!details.expiration_date || typeof details.expiration_date !== 'number'){ //CREATE A TIMESTAMP IF NONE
-		details.expiration_date = 3600
-	}
-	if(!details.payload || typeof details !== 'object'){ // CREATE A PAYLOAD IF NONE
-		details.payload = {}
-	}
-
-	let token = jwt.sign({
-			data: details.payload
-		}, config.ket_secret, {
-		expiresIn: details.expiration_date,
-		algorithm: 'HS256'
-	})
-  	return token
+function create_session_token(){
+  	return uuid();
 }
 
 function check_if_jwt_token_is_valid( token ){
@@ -51,6 +35,6 @@ function check_if_jwt_token_is_valid( token ){
 module.exports={
     'create_token': create_token,
     'check_if_token_is_valid': check_if_token_is_valid,
-    'create_jwt_token': create_jwt_token,
+    'create_session_token': create_session_token,
     'check_if_jwt_token_is_valid': check_if_jwt_token_is_valid
 }

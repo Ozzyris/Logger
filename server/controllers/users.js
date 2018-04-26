@@ -1,6 +1,7 @@
 // PACKAGES
 const express = require('express'),
 	router = express.Router(),
+	moment = require('moment'),
 	Users = require('../models/users').Users,
 	config = require('../config');
 
@@ -71,6 +72,7 @@ var bcrypt = require('../helpers/bcrypt'),
 		}
 		let session = {
 			token: '',
+			expiry_date: '',
 			device_details: {
 				ip: req.body.device_details.ip,
 				country: req.body.device_details.country,
@@ -92,15 +94,12 @@ var bcrypt = require('../helpers/bcrypt'),
 				}
 			})
 			.then(user_id => {
-				let token_details = {
-						expiration_date: '1d',
-						payload: {
-							id: user_id
-						}
-					};
-
-				if( user.stay_loggedin ){ token_details.expiration_date = '7d'; }
-				session.token = token_manager.create_jwt_token();
+				session.token = token_manager.create_session_token();
+				if( user.stay_loggedin ){
+					token_details.expiry_date = moment().add(7,'day');
+				}else{
+					token_details.expiry_date = moment().add(1,'day');
+				}
 
 				return Users.save_session_detail_from_id( session, user_id );
 			})
@@ -115,18 +114,6 @@ var bcrypt = require('../helpers/bcrypt'),
 	// LOGOUT WITH HEADER
 	router.get('/logout-with-header', function (req, res) {
 		res.status(200).json({ message: 'You are logged out', code:'logged_out' });
-	});
-
-	// GET USER DETAILS FROM ID
-	router.get('/get-user-details-from-id/:id', function (req, res) {
-		Users.get_user_details_from_id( req.params.id )
-			.then( user => {
-				res.status(200).json(user);
-			})
-			.catch(error => {
-				res.status(401).json( error );
-			})
-		
 	});
 
 	// SEND CONFIRMATION EMAIL

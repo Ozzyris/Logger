@@ -35,6 +35,7 @@ var users = new mongoose.Schema({
         active_auth: {
             creation_date: {type: String},
             last_modification_date: {type: String},
+            expiry_date: {type: String},
             token: {type: String},
             device_details: {
                 ip: {type: String},
@@ -48,6 +49,7 @@ var users = new mongoose.Schema({
             {
                 creation_date: {type: String},
                 last_modification_date: {type: String},
+                expiry_date: {type: String},
                 device_details: {
                     ip: {type: String},
                     country: {type: String},
@@ -120,6 +122,7 @@ users.statics.save_session_detail_from_id = function (session, user_id){
                 active_auth: {
                     creation_date: moment(),
                     last_modification_date: moment(),
+                    expiry_date: session.expiry_date,
                     token: session.token,
                     device_details: {
                         ip: session.device_details.ip,

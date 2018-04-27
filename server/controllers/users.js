@@ -72,7 +72,8 @@ var bcrypt = require('../helpers/bcrypt'),
 		}
 		let session = {
 			token: '',
-			expiry_date: '',
+			expiration_date: '',
+			keep_session: req.body.stay_loggedin,
 			device_details: {
 				ip: req.body.device_details.ip,
 				country: req.body.device_details.country,
@@ -95,15 +96,16 @@ var bcrypt = require('../helpers/bcrypt'),
 			})
 			.then(user_id => {
 				session.token = token_manager.create_session_token();
-				if( user.stay_loggedin ){
-					token_details.expiry_date = moment().add(7,'day');
-				}else{
-					token_details.expiry_date = moment().add(1,'day');
-				}
 
+				if( user.stay_loggedin ){
+					session.expiration_date = moment().add(7,'day');
+				}else{
+					session.expiration_date = moment().add(1,'day');
+				}
 				return Users.save_session_detail_from_id( session, user_id );
 			})
 			.then(is_session_saved => {
+				console.log(is_session_saved);
 				res.status(200).json({ session: session.token });
 			})
 			.catch( error => {

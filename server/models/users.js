@@ -35,7 +35,8 @@ var users = new mongoose.Schema({
         active_auth: {
             creation_date: {type: String},
             last_modification_date: {type: String},
-            expiry_date: {type: String},
+            expiration_date: {type: String},
+            keep_session: {type: Boolean, default: false},
             token: {type: String},
             device_details: {
                 ip: {type: String},
@@ -49,7 +50,7 @@ var users = new mongoose.Schema({
             {
                 creation_date: {type: String},
                 last_modification_date: {type: String},
-                expiry_date: {type: String},
+                expiration_date: {type: String},
                 device_details: {
                     ip: {type: String},
                     country: {type: String},
@@ -113,45 +114,6 @@ users.statics.get_user_id_from_email = function (email){
             })
     })
 };
-
-users.statics.save_session_detail_from_id = function (session, user_id){
-    return new Promise((resolve, reject) => {
-        console.log(session);
-        Users.update({ _id: user_id }, {
-            auth_record: {
-                active_auth: {
-                    creation_date: moment(),
-                    last_modification_date: moment(),
-                    expiry_date: session.expiry_date,
-                    token: session.token,
-                    device_details: {
-                        ip: session.device_details.ip,
-                        country: session.device_details.country,
-                        browser: session.device_details.browser,
-                        os: session.device_details.os,
-                        device: session.device_details.device,
-                    }
-                }
-            }
-        }).exec()
-        .then(session =>{
-            resolve(true);
-        })
-    });
-}
-
-users.statics.get_password_from_email = function( email ){
-    return new Promise((resolve, reject) => {
-        this.findOne({ email : email }).exec()
-            .then( user => {
-                if( user ){
-                    resolve( user.password )
-                }else{
-                    reject({ message: 'Your email does not exist', code: 'email_not_exist'});
-                }
-            })
-    });
-}
 
 users.statics.get_user_details_from_id = function( id ){
     return new Promise((resolve, reject) => {
@@ -326,6 +288,85 @@ users.statics.delete_password_token_from_token = function( token ){
         })
     });
 }
+
+
+//AUTH
+users.statics.get_password_from_email = function( email ){
+    return new Promise((resolve, reject) => {
+        this.findOne({ email : email }).exec()
+            .then( user => {
+                if( user ){
+                    resolve( user.password )
+                }else{
+                    reject({ message: 'Your email does not exist', code: 'email_not_exist'});
+                }
+            })
+    });
+}
+
+users.statics.save_session_detail_from_id = function (session, user_id){
+    return new Promise((resolve, reject) => {
+        Users.update({ _id: user_id }, {
+            auth_record: {
+                active_auth: {
+                    creation_date: moment(),
+                    last_modification_date: moment(),
+                    expiration_date: session.expiration_date,
+                    token: session.token,
+                    device_details: {
+                        ip: session.device_details.ip,
+                        country: session.device_details.country,
+                        browser: session.device_details.browser,
+                        os: session.device_details.os,
+                        device: session.device_details.device,
+                    }
+                }
+            }
+        }).exec()
+        .then(session =>{
+            resolve(true);
+        })
+    });
+}
+
+users.statics.find_auth_token_detail_with_token = function( token ){
+    return new Promise((resolve, reject) => {
+        this.findOne({ 'auth_record.active_auth.token': token }).exec()
+            .then( user => {
+                if( user ){
+                    let cleaned_token = {
+                        creation_date: user.auth_record.active_auth.creation_date,
+                        last_modification_date: user.auth_record.active_auth.last_modification_date,
+                        expiration_date: user.auth_record.active_auth.expiration_date,
+                        token: user.auth_record.active_auth.token,
+                        keep_session: user.auth_record.active_auth.keep_session
+                    }
+                    resolve( cleaned_token );
+                }else{
+                    reject({ message: 'Your token does not exist', code: 'token_not_exist'});
+                }
+            })
+    });
+}
+
+users.statics.update_token_timestamp = function( token, session ){
+    return new Promise((resolve, reject) => {
+        console.log(session);
+        Users.update({ 'auth_record.active_auth.token': token }, {
+            auth_record: {
+                active_auth: {
+                    last_modification_date: moment(),
+                    expiration_date: session.expiration_date,
+                }
+            }
+        }).exec()
+        .then(session =>{
+            resolve(true);
+        })
+    });
+}
+
+
 
 var Users = mongoose.DB.model('Users', users);
 

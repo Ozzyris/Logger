@@ -6,6 +6,12 @@ const express = require('express'),
     config = require('./config'),
     morgan = require('morgan');
 
+// ROUTES
+const authRouter = require('./controllers/auth').authRouter,
+      userRouter = require('./controllers/user').userRouter,
+      adminRouter = require('./controllers/admin').adminRouter,
+      contentRouter = require('./controllers/content').contentRouter;
+
 // HELPERS
 
 server.listen(config.port);
@@ -25,13 +31,11 @@ app.use((req, res, next)=>{
     }
 });
 
-//SET GLOBAL VARIABLE
-app.set('ket_secret', config.ket_secret);
-
-// MORGAN Logging the calls
+// MORGAN LOGGING THE CALLS
 app.use(morgan('dev'));
 
-// ROUTE
-const usersRouter = require('./controllers/users').usersRouter;
-
-app.use('/users/', usersRouter);
+// ROUTES
+app.use('/auth', authRouter);
+app.use('/user', userRouter);
+app.use('/admin', adminRouter);
+app.use('/content', contentRouter);

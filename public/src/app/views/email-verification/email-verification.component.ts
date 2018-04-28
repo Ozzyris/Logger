@@ -2,21 +2,21 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 //services
-import { users_service } from '../../services/users/users.service';
+import { auth_service } from '../../services/auth/auth.service';
 
 @Component({
 	selector: 'app-email-verification',
 	templateUrl: './email-verification.component.html',
 	styleUrls: ['./email-verification.component.scss'],
-  providers: [users_service]
+  providers: [auth_service]
 })
 export class EmailVerificationComponent implements OnInit {
 	token: string;
 
-	constructor( private route: ActivatedRoute, private users_service: users_service ){}
+	constructor( private route: ActivatedRoute, private auth_service: auth_service ){}
 	ngOnInit(){
 		this.route.params.subscribe( params =>
-			this.users_service.check_verification_email_token( params['token'] )
+			this.auth_service.check_verification_email_token( params['token'] )
 				.then(response => {
 					this.token = response.message;
 				})

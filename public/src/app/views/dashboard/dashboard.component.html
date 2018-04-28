@@ -15,7 +15,8 @@
 						<li><a>Log history</a></li>
 						<li><a>Give get</a></li>
 						<li><a>Terms and Condition</a></li>
-						<li><a (click)="logout()" >Logout</a></li>
+						<li *ngIf="user.level == 'admin'"><a>Admin</a></li>
+						<li><a (click)="signout()" >Logout</a></li>
 					</ul>
 				</div>
 			</li>

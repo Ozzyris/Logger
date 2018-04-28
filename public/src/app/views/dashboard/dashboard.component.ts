@@ -3,20 +3,21 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Rx';
 
 //services
-import { users_service } from '../../services/users/users.service';
+import { user_service } from '../../services/user/user.service';
+import { auth_service } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
-  providers: [users_service]
+  providers: [user_service, auth_service]
 })
 
 export class DashboardComponent implements OnInit {
 	user: any = {
-		id: '',
 		given_name: '',
 		family_name: '',
+		level: '',
 		email: '',
 		email_verification: {
 			is_email_verified: true
@@ -31,20 +32,18 @@ export class DashboardComponent implements OnInit {
 	gradient_style: any;
 	email_verification_message: string = '';
 
-	constructor( private router: Router, private users_service: users_service ){}
+	constructor( private router: Router, private user_service: user_service, private auth_service: auth_service ){}
 	ngOnInit(){
-		let user = JSON.parse(localStorage.getItem("user"));
-		if(user.id){
-			this.user.id = user.id;
-			this.get_user_details( user.id );
-		}
+		this.get_user_details();
 	}
 
-	get_user_details( user_id ){
-		this.users_service.get_user_details_from_id( user_id )
+	get_user_details(){
+		this.user_service.get_user_details()
 			.then( user_details => {
+				console.log(user_details);
 				this.user.given_name = user_details.given_name;
 				this.user.family_name = user_details.family_name;
+				this.user.level = user_details.level;
 				this.user.email = user_details.email;
 				this.user.email_verification.is_email_verified = user_details.email_verification.is_email_verified;
 				this.user.avatar.initials = user_details.avatar.initials;
@@ -73,9 +72,10 @@ export class DashboardComponent implements OnInit {
 		}
 	}
 
-	logout(){
-		this.users_service.logout()
-			.then( is_logged_out => {
+	signout(){
+		this.user_service.signout()
+			.then( is_signed_out => {
+				localStorage.removeItem('session');
 				this.router.navigate(['landing']);
 			})
 			.catch(error => {
@@ -83,12 +83,8 @@ export class DashboardComponent implements OnInit {
 			});
 	}
 
-	get_user_data( user_id ){
-		this.user.id = user_id;
-	}
-
 	send_verification_email(){
-		this.users_service.send_verfication_from_email( this.user.email )
+		this.auth_service.send_verification_email()
 			.then( is_email_send => {
 				this.user.is_email_verified = true;
 			})

@@ -3,14 +3,14 @@ import { Observable } from 'rxjs/Rx';
 import { map } from 'rxjs/operators';
 
 //services
-import { users_service } from '../../services/users/users.service';
+import { auth_service } from '../../services/auth/auth.service';
 import { validator_service } from '../../services/validator/validator.service';
 
 @Component({
   selector: 'app-forgotpassword',
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forgot-password.component.scss'],
-  providers: [users_service, validator_service]
+  providers: [auth_service, validator_service]
 })
 
 export class ForgotpasswordComponent implements OnInit {
@@ -25,7 +25,7 @@ export class ForgotpasswordComponent implements OnInit {
 	gradient_style: any;
 	initials: string = '';
 
-	constructor( private elementRef: ElementRef, private users_service: users_service, private validator_service: validator_service ){
+	constructor( private elementRef: ElementRef, private auth_service: auth_service, private validator_service: validator_service ){
 		Observable.fromEvent(elementRef.nativeElement, 'keyup')
 			.map(() => this.input_email)
 			.debounceTime( 600 )
@@ -41,7 +41,7 @@ export class ForgotpasswordComponent implements OnInit {
 		if( this.validator_service.email_test( email ) == false ) {
 				this.info_email = '<span class="icon""></span> Your email is incorrect.';
 		}else{
-			this.users_service.get_avatar_from_email( email )
+			this.auth_service.get_avatar_from_email( email )
 				.then( avatar => {
 					this.info_email = '';
 					if(avatar.type = 'generated'){
@@ -81,7 +81,7 @@ export class ForgotpasswordComponent implements OnInit {
 	}
 
 	send_forgot_email(){
-		this.users_service.send_forgot_password_from_email( this.input_email )
+		this.auth_service.send_forgot_password_from_email( this.input_email )
 			.then( is_email_send => {
 				this.button_class = 'button loading success';
 				this.button_text = '<span class="icon"></span>';

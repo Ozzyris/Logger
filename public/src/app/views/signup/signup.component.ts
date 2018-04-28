@@ -2,14 +2,19 @@ import { Component, OnInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Rx';
 import { map, take, debounceTime } from 'rxjs/operators';
-import { users_service } from '../../services/users/users.service'
-import { validator_service } from '../../services/validator/validator.service'
+import { Ng2DeviceService } from 'ng2-device-detector';
+
+//services
+import { auth_service } from '../../services/auth/auth.service';
+import { validator_service } from '../../services/validator/validator.service';
+import { system_service } from '../../services/system/system.service';
+
 
 @Component({
 	selector: 'app-signup',
 	templateUrl: './signup.component.html',
 	styleUrls: ['./signup.component.scss'],
-	providers: [users_service, validator_service]
+	providers: [auth_service, system_service, validator_service]
 })
 
 export class SignupComponent implements OnInit {
@@ -46,7 +51,10 @@ export class SignupComponent implements OnInit {
 	//form validator
 	form_open_door: boolean = true;
 
-	constructor( private router:Router, private elementRef: ElementRef, private users_service: users_service, private validator_service: validator_service ){
+	//user_information
+	user_information: any;
+
+	constructor( private router:Router, private elementRef: ElementRef, private auth_service: auth_service, private system_service: system_service, private validator_service: validator_service, private deviceService: Ng2DeviceService ){
 		Observable.fromEvent(elementRef.nativeElement, 'keyup')
 			.map(() => this.input_password)
 			.debounceTime( 600 )
@@ -82,11 +90,29 @@ export class SignupComponent implements OnInit {
 
 	}
 	ngOnInit(){
-		//choose gradient color
 		let random_number = Math.floor(Math.random() * this.gradient_colors.length);
 		this.gradient_color = this.gradient_colors[random_number];
+		this.get_navigator_details();
 	}
 
+	get_navigator_details(){
+		let device_info = this.deviceService.getDeviceInfo();
+		this.user_information = {
+			device_details: {
+				ip: '',
+				country: '',
+				browser: device_info.browser,
+				os: device_info.os,
+				device: device_info.device
+			}
+		}
+
+		this.system_service.get_device_info()
+			.then(external_devices_details => {
+				this.user_information.device_details.ip = external_devices_details.ip;
+				this.user_information.device_details.country = external_devices_details.country_name;
+			})
+	}
 	avatar_generator(){
 		this.initials = this.input_given_name.charAt(0).toUpperCase() + this.input_family_name.charAt(0).toUpperCase();
 		this.gradient_style = {"background": 'linear-gradient(to right, #' + this.gradient_color[0] + ', #' +this.gradient_color[1] + ')'}
@@ -130,7 +156,7 @@ export class SignupComponent implements OnInit {
 			if( this.validator_service.email_test( email ) == false ) {
 				this.info_email = '<span class="icon""></span> Your email is incorrect.';
 			}else{
-				this.users_service.check_email( email )
+				this.auth_service.check_email( email )
 					.then( is_email_exist => {
 						this.form_open_door = true;
 					})
@@ -185,7 +211,7 @@ export class SignupComponent implements OnInit {
 			}
 
 			if( this.form_open_door == true ){
-				this.create_new_account();
+				this.signup_with_credentials();
 			}else{
 				this.button_class = 'button';
 				this.button_text = 'Create my new account';
@@ -193,23 +219,23 @@ export class SignupComponent implements OnInit {
 		}
 	}
 
-	create_new_account(){
-		let user = {
-			given_name: this.input_given_name.charAt(0).toUpperCase() + this.input_given_name.slice(1).toLowerCase(),
-			family_name: this.input_family_name.charAt(0).toUpperCase() + this.input_family_name.slice(1).toLowerCase(),
-			email: this.input_email.toLowerCase(),
-			password: this.input_password,
-			avatar: {
-				type: 'generated',
-				gradient: this.gradient_color,
-				initials: this.initials
-			}
+	signup_with_credentials(){
+		this.user_information.given_name = this.input_given_name.charAt(0).toUpperCase() + this.input_given_name.slice(1).toLowerCase();
+		this.user_information.family_name = this.input_family_name.charAt(0).toUpperCase() + this.input_family_name.slice(1).toLowerCase();
+		this.user_information.email = this.input_email.toLowerCase();
+		this.user_information.password = this.input_password;
+		this.user_information.avatar = {
+			type: 'generated',
+			gradient: this.gradient_color,
+			initials: this.initials
 		}
-		this.users_service.create_user( user )
+
+		this.auth_service.signup_with_credentials( this.user_information )
 			.then( user_detail => {
 				console.log( user_detail );
 				if(user_detail){
-					this.send_verification_email( user.email, user_detail.user_id );
+					localStorage.setItem("session", user_detail.session);
+					this.send_verification_email();
 				}
 			})
 			.catch(error => {
@@ -228,20 +254,16 @@ export class SignupComponent implements OnInit {
 			});
 	}
 
-	send_verification_email( email, user_id ){
-		this.users_service.send_verfication_from_email( email )
+	send_verification_email(){
+		this.auth_service.send_verification_email()
 			.then( is_email_send => {
-				let user = {
-					id: user_id
-				}
-				localStorage.setItem("user", JSON.stringify(user));
 				this.button_class = 'button loading success';
 				this.button_text = '<span class="icon"></span>';
 				
 				let timer = setTimeout(() => {  
 					this.router.navigate(['dashboard']);
 					clearTimeout(timer);
-				}, 1500);
+				}, 1000);
 			})
 			.catch(error => {
 				this.button_class = 'button';

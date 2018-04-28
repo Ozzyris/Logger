@@ -4,7 +4,7 @@ import { Observable } from 'rxjs/Rx';
 import { map } from 'rxjs/operators';
 
 //services
-import { users_service } from '../../services/users/users.service';
+import { auth_service } from '../../services/auth/auth.service';
 import { validator_service } from '../../services/validator/validator.service';
 
 
@@ -12,7 +12,7 @@ import { validator_service } from '../../services/validator/validator.service';
 	selector: 'app-setpassword',
 	templateUrl: './set-password.component.html',
 	styleUrls: ['./set-password.component.scss'],
-	providers: [users_service, validator_service]
+	providers: [auth_service, validator_service]
 })
 
 export class SetpasswordComponent implements OnInit {
@@ -38,7 +38,7 @@ export class SetpasswordComponent implements OnInit {
 	gradient_style: any;
 	initials: string = '';
 
-	constructor( private route: ActivatedRoute, private elementRef: ElementRef, private users_service: users_service, private validator_service: validator_service ){
+	constructor( private route: ActivatedRoute, private elementRef: ElementRef, private auth_service: auth_service, private validator_service: validator_service ){
 		Observable.fromEvent(elementRef.nativeElement, 'keyup')
 			.map(() => this.input_password)
 			.debounceTime( 600 )
@@ -87,7 +87,7 @@ export class SetpasswordComponent implements OnInit {
 	}
 
 	get_avatar_from_token( token ){
-		this.users_service.get_avatar_from_token( token )
+		this.auth_service.get_avatar_from_token( token )
 				.then( avatar => {
 					if(avatar.type = 'generated'){
 						this.gradient_style = {"background": 'linear-gradient(to right, #' + avatar.gradient[0] + ', #' + avatar.gradient[1] + ')'}
@@ -138,7 +138,7 @@ export class SetpasswordComponent implements OnInit {
 			password: this.input_password,
 			token: this.token
 		}
-		this.users_service.set_password( password_details )
+		this.auth_service.set_password( password_details )
 			.then( is_new_password_set => {
 				console.log( is_new_password_set );
 			})

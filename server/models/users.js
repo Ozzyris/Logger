@@ -50,7 +50,8 @@ var users = new mongoose.Schema({
             {
                 creation_date: {type: String},
                 last_modification_date: {type: String},
-                expiration_date: {type: String},
+                ending_date: {type: String},
+                keep_session: {type: String},
                 device_details: {
                     ip: {type: String},
                     country: {type: String},
@@ -63,7 +64,7 @@ var users = new mongoose.Schema({
     }
 }, {collection: 'users'});
 
-users.statics.check_if_unique_email = function (email){
+users.statics.check_email = function (email){
     return new Promise((resolve, reject) => {
         this.findOne({ email : email }).exec()
             .then( user => {
@@ -76,6 +77,7 @@ users.statics.check_if_unique_email = function (email){
     })
 };
 
+// AVATAR
 users.statics.get_avatar_from_email = function (email){
     return new Promise((resolve, reject) => {
         this.findOne({ email : email }).exec()
@@ -88,7 +90,6 @@ users.statics.get_avatar_from_email = function (email){
             })
     })
 };
-
 users.statics.get_avatar_from_token = function (token){
     return new Promise((resolve, reject) => {
         this.findOne({ 'password_reset.password_token.token' : token }).exec()
@@ -115,15 +116,18 @@ users.statics.get_user_id_from_email = function (email){
     })
 };
 
-users.statics.get_user_details_from_id = function( id ){
+
+// GET USER DETAILS
+users.statics.get_user_details_from_xtoken = function( xtoken ){
     return new Promise((resolve, reject) => {
-        this.findOne({ _id : id }).exec()
+        this.findOne({ 'auth_record.active_auth.token': xtoken }).exec()
             .then( user => {
                 if( user ){
                     let cleaned_user = {
                         given_name: user.given_name,
                         family_name: user.family_name,
                         email: user.email,
+                        level: user.level,
                         avatar: {
                             gradient: user.avatar.gradient,
                             initials: user.avatar.initials,
@@ -135,38 +139,16 @@ users.statics.get_user_details_from_id = function( id ){
                     }
                     resolve( cleaned_user );
                 }else{
-                    reject({ message: 'Your id does not exist', code: 'id_not_exist'});
+                    reject({ message: 'Your session does not exist', code: 'xtoken_not_exist'});
                 }
             })
     });
 }
 
-users.statics.get_user_details_from_email = function( email ){
+// EMAIL VERIFICATION
+users.statics.save_email_token_from_xtoken = function( xtoken, token ){
     return new Promise((resolve, reject) => {
-        this.findOne({ email : email }).exec()
-            .then( user => {
-                if( user ){
-                    let cleaned_user = {
-                        given_name: user.given_name,
-                        family_name: user.family_name,
-                        email: user.email,
-                        avatar: {
-                            gradient: user.avatar.gradient,
-                            initials: user.avatar.initials,
-                            type: user.avatar.type,
-                        }
-                    }
-                    resolve( cleaned_user );
-                }else{
-                    reject({ message: 'Your id does not exist', code: 'id_not_exist'});
-                }
-            })
-    });
-}
-
-users.statics.save_email_token_from_email = function( email, token ){
-    return new Promise((resolve, reject) => {
-        Users.update({ email: email }, {
+        users.update({ 'auth_record.active_auth.token': xtoken }, {
             'email_verification.email_token':{
                 token: token,
                 expiration_date: moment().add(6,'h'),
@@ -178,7 +160,6 @@ users.statics.save_email_token_from_email = function( email, token ){
         })
     });
 }
-
 users.statics.get_token_details = function( token ){
     return new Promise((resolve, reject) => {
         this.findOne({ 'email_verification.email_token.token': token }).exec()
@@ -197,10 +178,9 @@ users.statics.get_token_details = function( token ){
             
     });
 }
-
 users.statics.update_email_verification_from_token = function( token ){
     return new Promise((resolve, reject) => {
-        Users.update({ 'email_verification.email_token.token': token }, {
+        users.update({ 'email_verification.email_token.token': token }, {
             'email_verification.is_email_verified': true
         }).exec()
         .then(session =>{
@@ -208,10 +188,9 @@ users.statics.update_email_verification_from_token = function( token ){
         })
     });
 }
-
 users.statics.delete_email_token_from_token = function( token ){
     return new Promise((resolve, reject) => {
-        Users.update({ 'email_verification.email_token.token': token }, {
+        users.update({ 'email_verification.email_token.token': token }, {
             $unset:{
                 'email_verification.email_token.token': '',
                 'email_verification.email_token.expiration_date': '',
@@ -227,7 +206,7 @@ users.statics.delete_email_token_from_token = function( token ){
 // FORGOT PASSWORD
 users.statics.save_password_token_from_email = function( email, token ){
     return new Promise((resolve, reject) => {
-        Users.update({ email: email }, {
+        users.update({ email: email }, {
             'password_reset':{
                 is_password_being_reset: true,
                 password_token:{
@@ -242,7 +221,6 @@ users.statics.save_password_token_from_email = function( email, token ){
         })
     });
 }
-
 users.statics.get_token_details_from_token = function( token ){
     return new Promise((resolve, reject) => {
         this.findOne({ 'password_reset.password_token.token': token }).exec()
@@ -260,11 +238,10 @@ users.statics.get_token_details_from_token = function( token ){
             })
     });
 }
-
 users.statics.update_password_from_token = function( password_details ){
     return new Promise((resolve, reject) => {
         console.log(password_details);
-        Users.update({'password_reset.password_token.token': password_details.token }, {
+        users.update({'password_reset.password_token.token': password_details.token }, {
             'password_reset.is_password_being_reset': false,
             password: password_details.password
         }).exec()
@@ -273,10 +250,9 @@ users.statics.update_password_from_token = function( password_details ){
         })
     });
 }
-
 users.statics.delete_password_token_from_token = function( token ){
     return new Promise((resolve, reject) => {
-        Users.update({ 'password_reset.password_token.token': token }, {
+        users.update({ 'password_reset.password_token.token': token }, {
             $unset:{
                 'password_reset.password_token.token': '',
                 'password_reset.password_token.expiration_date': '',
@@ -290,7 +266,7 @@ users.statics.delete_password_token_from_token = function( token ){
 }
 
 
-//AUTH
+//SIGNIN
 users.statics.get_password_from_email = function( email ){
     return new Promise((resolve, reject) => {
         this.findOne({ email : email }).exec()
@@ -303,10 +279,9 @@ users.statics.get_password_from_email = function( email ){
             })
     });
 }
-
 users.statics.save_session_detail_from_id = function (session, user_id){
     return new Promise((resolve, reject) => {
-        Users.update({ _id: user_id }, {
+        users.update({ _id: user_id }, {
             auth_record: {
                 active_auth: {
                     creation_date: moment(),
@@ -328,10 +303,9 @@ users.statics.save_session_detail_from_id = function (session, user_id){
         })
     });
 }
-
-users.statics.find_auth_token_detail_with_token = function( token ){
+users.statics.get_auth_detail_from_xtoken = function( xtoken ){
     return new Promise((resolve, reject) => {
-        this.findOne({ 'auth_record.active_auth.token': token }).exec()
+        this.findOne({ 'auth_record.active_auth.token': xtoken }).exec()
             .then( user => {
                 if( user ){
                     let cleaned_token = {
@@ -339,25 +313,59 @@ users.statics.find_auth_token_detail_with_token = function( token ){
                         last_modification_date: user.auth_record.active_auth.last_modification_date,
                         expiration_date: user.auth_record.active_auth.expiration_date,
                         token: user.auth_record.active_auth.token,
-                        keep_session: user.auth_record.active_auth.keep_session
+                        keep_session: user.auth_record.active_auth.keep_session,
+                        device_details: user.auth_record.active_auth.device_details
                     }
                     resolve( cleaned_token );
                 }else{
-                    reject({ message: 'Your token does not exist', code: 'token_not_exist'});
+                    reject({ message: 'Your session does not exist', code: 'xtoken_not_exist'});
                 }
             })
     });
 }
-
-users.statics.update_token_timestamp = function( token, session ){
+users.statics.update_token_timestamp_from_xtoken = function( xtoken, session ){
     return new Promise((resolve, reject) => {
-        console.log(session);
-        Users.update({ 'auth_record.active_auth.token': token }, {
-            auth_record: {
-                active_auth: {
-                    last_modification_date: moment(),
-                    expiration_date: session.expiration_date,
+        users.update({ 'auth_record.active_auth.token': xtoken }, {
+            'auth_record.active_auth.last_modification_date': moment(),
+            'auth_record.active_auth.expiration_date': session.expiration_date,
+        }).exec()
+        .then(session =>{
+            resolve(true);
+        })
+    });
+}
+
+
+//SIGNOUT
+users.statics.add_recorded_session = function( xtoken, session ){
+    return new Promise((resolve, reject) => {
+        users.update({ 'auth_record.active_auth.token': xtoken }, {
+            $push:{
+                'auth_record.recorded_auth': {
+                    creation_date: session.creation_date,
+                    last_modification_date: session.last_modification_date,
+                    ending_date: moment(),
+                    keep_session: session.keep_session,
+                    device_details: {
+                        ip: session.device_details.ip,
+                        country: session.device_details.country,
+                        browser: session.device_details.browser,
+                        os: session.device_details.os,
+                        device: session.device_details.device,
+                    }
                 }
+            }
+        }).exec()
+        .then(session =>{
+            resolve(true);
+        })
+    });
+}
+users.statics.delete_active_session = function( xtoken ){
+    return new Promise((resolve, reject) => {
+        users.update({ 'auth_record.active_auth.token': xtoken }, {
+            $unset:{
+                'auth_record.active_auth': ''
             }
         }).exec()
         .then(session =>{
@@ -367,10 +375,9 @@ users.statics.update_token_timestamp = function( token, session ){
 }
 
 
+var users = mongoose.DB.model('users', users);
 
-var Users = mongoose.DB.model('Users', users);
-
-module.exports.Users = Users
+module.exports.users = users
 
 
 

@@ -1,18 +1,18 @@
 // PACKAGES
 const express = require('express'),
-	router = express.Router(),
-	moment = require('moment'),
-	Users = require('../models/users').Users,
-	config = require('../config');
+	  router = express.Router(),
+	  moment = require('moment'),
+	  users = require('../models/users').users,
+	  config = require('../config');
 
 // HELPERS
-var bcrypt = require('../helpers/bcrypt'),
-	token_manager = require('../helpers/token_manager'),
-	mailer = require('../helpers/mailer');
+const bcrypt = require('../helpers/bcrypt'),
+	  token_manager = require('../helpers/token_manager'),
+	  mailer = require('../helpers/mailer');
 
-	// CHECK EMAIL
+	// GENRAL
 	router.get('/check-email/:email', function (req, res) {
-		Users.check_if_unique_email( req.params.email )
+		users.check_email( req.params.email )
 			.then( is_email_unique => {
 				res.status(200).json({status: 'unexistant'});
 			})
@@ -20,57 +20,82 @@ var bcrypt = require('../helpers/bcrypt'),
 				res.status(401).json( error );
 			})
 	});
-
-	// GET AVATAR FROM EMAIL
 	router.get('/get-avatar-from-email/:email', function (req, res) {
-		Users.get_avatar_from_email( req.params.email )
-			.then( is_email_unique => {
-				res.status(200).json(is_email_unique);
+		users.get_avatar_from_email( req.params.email )
+			.then( avatar_details => {
+				res.status(200).json(avatar_details);
 			})
 			.catch(error => {
 				res.status(401).json( error );
 			})
 	});
-
-	// GET AVATAR FROM TOKEN
 	router.get('/get-avatar-from-token/:token', function (req, res) {
-		Users.get_avatar_from_token( req.params.token )
-			.then( avatar => {
-				res.status(200).json(avatar);
+		users.get_avatar_from_token( req.params.token )
+			.then( avatar_details => {
+				res.status(200).json(avatar_details);
 			})
 			.catch(error => {
 				res.status(401).json( error );
 			})
 	});
 
-	// ADD USER
-	router.put('/create-user', function (req, res) {
-		let user = req.body;
+	// SIGN UP
+	router.put('/signup-with-credentials', function (req, res) {
+		let user = {
+			given_name: req.body.given_name,
+			family_name: req.body.family_name,
+			email: req.body.email,
+			password: req.body.password,
+			avatar: {
+   				type: req.body.avatar.type,
+     			gradient: req.body.avatar.gradient,
+     			initials: req.body.avatar.initials
+     		}
+		},
+		session = {
+			token: '',
+			expiration_date: '',
+			keep_session: false,
+			device_details: {
+				ip: req.body.device_details.ip,
+				country: req.body.device_details.country,
+				browser: req.body.device_details.browser,
+				os: req.body.device_details.os,
+				device: req.body.device_details.device
+			}
+		};
 
-		Users.check_if_unique_email( user.email )
+		users.check_email( user.email )
 			.then( is_email_unique => {
 				return bcrypt.hash_password( user.password );
 			})
 			.then( hash_password => {
 				user.password = hash_password;
-				return new Users(user).save()
+				return new users(user).save()
 			})
-			.then( inserted => {
-				res.status(200).send({ user_id: inserted._id })
+			.then( user_saved => {
+				user.id = user_saved._id;
+				session.token = token_manager.create_session_token();
+				session.expiration_date = moment().add(1,'day');
+
+				return users.save_session_detail_from_id( session, user_saved._id );
+			})
+			.then( is_session_saved => {
+				res.status(200).send({ session: session.token })
 			})
 			.catch( error => {
 				res.status(401).json( error );
 			})
 	});
 
-	//LOGIN USER
-	router.post('/login-with-credentials', function (req, res) {
+	// SIGN IN
+	router.post('/signin-with-credentials', function (req, res) {
 		let user = {
 			email: req.body.email,
 			password: req.body.password,
 			stay_loggedin : req.body.stay_loggedin
-		}
-		let session = {
+		},
+			session = {
 			token: '',
 			expiration_date: '',
 			keep_session: req.body.stay_loggedin,
@@ -81,15 +106,15 @@ var bcrypt = require('../helpers/bcrypt'),
 				os: req.body.device_details.os,
 				device: req.body.device_details.device
 			}
-		}
+		};
 
-		Users.get_password_from_email( user.email )
+		users.get_password_from_email( user.email )
 			.then( db_password => {
 				return bcrypt.compare_password( user.password, db_password );
 			})
 			.then(are_password_similar => {
 				if(are_password_similar){
-					return Users.get_user_id_from_email( user.email );
+					return users.get_user_id_from_email( user.email );
 				}else{
 					res.status(401).json({message: 'Your email or passowrd was invalid', code: 'wrong_password'});
 				}
@@ -102,10 +127,9 @@ var bcrypt = require('../helpers/bcrypt'),
 				}else{
 					session.expiration_date = moment().add(1,'day');
 				}
-				return Users.save_session_detail_from_id( session, user_id );
+				return users.save_session_detail_from_id( session, user_id );
 			})
 			.then(is_session_saved => {
-				console.log(is_session_saved);
 				res.status(200).json({ session: session.token });
 			})
 			.catch( error => {
@@ -113,22 +137,17 @@ var bcrypt = require('../helpers/bcrypt'),
 			});
 	});
 
-	// LOGOUT WITH HEADER
-	router.get('/logout-with-header', function (req, res) {
-		res.status(200).json({ message: 'You are logged out', code:'logged_out' });
-	});
-
-	// SEND CONFIRMATION EMAIL
-	router.get('/send-verfication-from-email/:email', function (req, res) {
+	// VERIFY EMAIL NOT WORKING
+	router.get('/send-verification-email', function (req, res) {
 		let email_token;
 
 		token_manager.create_token()
 			.then(token => {
 				email_token = token;
-				return Users.save_email_token_from_email( req.params.email, token );
+				return users.save_email_token_from_xtoken( req.headers['x-auth-token'], token );
 			})
 			.then(is_saved_token => {
-				return Users.get_user_details_from_email( req.params.email )
+				return users.get_user_details_from_xtoken( req.headers['x-auth-token'] );
 			})
 			.then(user_details => {
 				let url = config.front_end_url + 'email-verification/' + email_token;
@@ -145,22 +164,20 @@ var bcrypt = require('../helpers/bcrypt'),
 				res.status(401).json( error );
 			})
 	});
-
-	// CHECK IF VERIFICATION EMAIL TOKEN IS VALID
-	router.get('/check_verification_email_token/:token', function (req, res) {
-		Users.get_token_details( req.params.token )
+	router.get('/check-verification-email-token/:token', function (req, res) {
+		users.get_token_details( req.params.token )
 			.then( token_details => {
 				return token_manager.check_if_token_is_valid( token_details );
 			})
 			.then( is_token_valid => {
 				if(is_token_valid){
-					return Users.update_email_verification_from_token( req.params.token );
+					return users.update_email_verification_from_token( req.params.token );
 				}else{
 					res.status(401).json({ message: 'Your token is expired, please send another verification mail', code: 'token_expired' });
 				}
 			})
 			.then(is_email_verification_updated => {
-				return Users.delete_email_token_from_token( req.params.token );
+				return users.delete_email_token_from_token( req.params.token );
 			})
 			.then(is_email_token_deleted => {
 				res.status(200).json({ message: 'Your email has been verified', code: 'email_verified' });
@@ -170,18 +187,18 @@ var bcrypt = require('../helpers/bcrypt'),
 			})
 	});
 
-	// SEND FORGOT PASSWORD EMAIL
+	// FORGOT PASSWORD
 	router.get('/send-forgot-password-from-email/:email', function (req, res) {
-		let password_token;
-		let given_name;
+		let password_token,
+			given_name;
 
 		token_manager.create_token()
 			.then(token => {
 				password_token = token;
-				return Users.save_password_token_from_email( req.params.email, token );
+				return users.save_password_token_from_email( req.params.email, token );
 			})
 			.then(is_saved_token => {
-				return Users.get_user_details_from_email( req.params.email )
+				return users.get_user_details_from_email( req.params.email )
 			})
 			.then(user_details => {
 				let url = config.front_end_url + 'set-password/' + password_token;
@@ -200,15 +217,13 @@ var bcrypt = require('../helpers/bcrypt'),
 				res.status(401).json( error );
 			})
 	});
-
-	//SET PASSWORD
 	router.post('/set-password', function (req, res) {
 		let password_details = {
 			token: req.body.token,
 			password: req.body.password
 		}
 
-		Users.get_token_details_from_token( password_details.token )
+		users.get_token_details_from_token( password_details.token )
 			.then( token_details => {
 				return token_manager.check_if_token_is_valid( token_details );
 			})
@@ -221,10 +236,10 @@ var bcrypt = require('../helpers/bcrypt'),
 			})
 			.then(password_hash => {
 				password_details.password = password_hash;
-				return Users.update_password_from_token( password_details );
+				return users.update_password_from_token( password_details );
 			})
 			.then(is_password_updated => {
-				return Users.delete_password_token_from_token( password_details.token );
+				return users.delete_password_token_from_token( password_details.token );
 			})
 			.then(is_token_deleted => {
 				res.status(200).json({ message: 'Your password has been updated', code: 'password_updated' });
@@ -235,5 +250,5 @@ var bcrypt = require('../helpers/bcrypt'),
 	});
 
 module.exports = {
-    "usersRouter" : router
+	"authRouter" : router
 };

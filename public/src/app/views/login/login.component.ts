@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 import { Ng2DeviceService } from 'ng2-device-detector';
 
 //services
-import { users_service } from '../../services/users/users.service';
+import { auth_service } from '../../services/auth/auth.service';
 import { validator_service } from '../../services/validator/validator.service';
 import { system_service } from '../../services/system/system.service';
 
@@ -14,7 +14,7 @@ import { system_service } from '../../services/system/system.service';
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
-  providers: [users_service, system_service, validator_service]
+  providers: [auth_service, system_service, validator_service]
 })
 export class LoginComponent implements OnInit {
 	//inputs
@@ -32,9 +32,10 @@ export class LoginComponent implements OnInit {
 	gradient_style: any;
 	initials: string = '';
 
+	//user information
 	user_information: any;
 
-	constructor( private router:Router, private elementRef: ElementRef, private users_service: users_service, private system_service: system_service, private validator_service: validator_service, private deviceService: Ng2DeviceService ){
+	constructor( private router:Router, private elementRef: ElementRef, private auth_service: auth_service, private system_service: system_service, private validator_service: validator_service, private deviceService: Ng2DeviceService ){
 		Observable.fromEvent(elementRef.nativeElement, 'keyup')
 			.map(() => this.input_email)
 			.debounceTime( 600 )
@@ -70,7 +71,7 @@ export class LoginComponent implements OnInit {
 		if( this.validator_service.email_test( email ) == false ) {
 				this.info_email = '<span class="icon""></span> Your email is incorrect.';
 		}else{
-			this.users_service.get_avatar_from_email( email )
+			this.auth_service.get_avatar_from_email( email )
 				.then( avatar => {
 					this.info_email = '';
 					if(avatar.type = 'generated'){
@@ -106,22 +107,22 @@ export class LoginComponent implements OnInit {
 		}
 
 		if( open_door == true ){
-			this.login();
+			this.signin();
 		}else{
 			this.button_class = 'button';
 			this.button_text = 'Login';
 		}
 	}
 
-	login(){
+	signin(){
 		this.user_information.email = this.input_email;
 		this.user_information.password = this.input_password;
 		this.user_information.stay_loggedin = this.input_stay_loggedin;
 
-		this.users_service.login_with_credentials( this.user_information )
+		this.auth_service.signin_with_credentials( this.user_information )
 			.then( user_detail => {
 				if( user_detail ){
-					localStorage.setItem("session", JSON.stringify(user_detail.session));
+					localStorage.setItem("session", user_detail.session);
 					this.button_class = 'button loading success';
 					this.button_text = '<span class="icon"></span>';
 					let timer = setTimeout(() => {  

@@ -36,6 +36,26 @@ function check_auth(req, res, next) {
 		})
 }
 
+// function adminCheck(req, res, next){
+//     var xAuth = req.headers['x-auth-token'];
+
+//     if(!xAuth){
+//         res.status(401).send([{message: "Invalid Auth"}]);
+//     }
+//     Admin.findOne({auth:{$elemMatch:{token: xAuth, expiration: {$gte: moment()}}}}).exec() //
+//         .then(found=>{
+//             if(!found){
+//                 res.status(401).send([{message: "Invalid Auth"}]);
+//             }
+//             req.body.user = found;
+//             req.body.userId = found._id;
+//             next();
+//         })
+//         .catch(err=>{
+//             res.status(200).send(errorCheck(err));
+//         });
+// }
+
 module.exports={
     'check_auth': check_auth
 }

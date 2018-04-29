@@ -1,3 +1,10 @@
+// ENVIRONMENT VARIABLES
+// if (process.env.NODE_ENV === "production") {
+//     process.env = require('./config/prod.json');
+// } else {
+//     process.env = require('./config/dev.json'); 
+// }
+
 // PACKAGES
 const express = require('express'),
     app = express(),

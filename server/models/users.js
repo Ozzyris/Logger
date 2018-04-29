@@ -309,6 +309,7 @@ users.statics.get_auth_detail_from_xtoken = function( xtoken ){
             .then( user => {
                 if( user ){
                     let cleaned_token = {
+                        level: user.level,
                         creation_date: user.auth_record.active_auth.creation_date,
                         last_modification_date: user.auth_record.active_auth.last_modification_date,
                         expiration_date: user.auth_record.active_auth.expiration_date,

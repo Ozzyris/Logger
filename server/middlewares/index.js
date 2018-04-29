@@ -6,8 +6,8 @@ var token_manager = require('../helpers/token_manager');
 
 
 function check_auth(req, res, next) {
-  let xtoken = req.headers['x-auth-token'],
-	  session;
+	let xtoken = req.headers['x-auth-token'],
+		session;
 
 	if(!xtoken){
 		res.status(401).send([{message: "Your authentification token is invalid", code: 'auth_invalid'}])
@@ -36,12 +36,22 @@ function check_auth(req, res, next) {
 		})
 }
 
-// function adminCheck(req, res, next){
-//     var xAuth = req.headers['x-auth-token'];
+function check_auth(req, res, next){
+	let xtoken = req.headers['x-auth-token'],
+		session;
+		console.log(xtoken)
 
-//     if(!xAuth){
-//         res.status(401).send([{message: "Invalid Auth"}]);
-//     }
+	if(!xtoken){
+		res.status(401).send([{message: "Your authentification token is invalid", code: 'auth_invalid'}])
+		return;
+	}
+
+	users.get_auth_detail_from_xtoken( xtoken )
+		.then(token_details => {
+			console.log(token_details)
+			// session = token_details;
+			// return token_manager.check_if_token_is_valid( token_details );
+		})
 //     Admin.findOne({auth:{$elemMatch:{token: xAuth, expiration: {$gte: moment()}}}}).exec() //
 //         .then(found=>{
 //             if(!found){
@@ -54,7 +64,7 @@ function check_auth(req, res, next) {
 //         .catch(err=>{
 //             res.status(200).send(errorCheck(err));
 //         });
-// }
+}
 
 module.exports={
     'check_auth': check_auth

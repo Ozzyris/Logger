@@ -1,29 +1,3 @@
-<nav class="dashboard_nav" >
-	<div class="inner_container">
-		<ul>
-			<li class="active"><a>Home</a></li>
-			<li><a>Banana</a></li>
-			<li class="profile_sub_nav">
-				<div class="user_icon" [ngStyle]="gradient_style">{{user.avatar.initials}}</div>
-				<div class="nav_dropdown">
-					<div class="header">
-						<h3>Hello {{user.given_name}} ✋</h3>
-					</div>
-					<ul>
-						<li><a>Profile</a></li>
-						<li><a>Notification</a></li>
-						<li><a>Log history</a></li>
-						<li><a>Give get</a></li>
-						<li><a>Terms and Condition</a></li>
-						<li *ngIf="user.level == 'admin'"><a>Admin</a></li>
-						<li><a (click)="signout()" >Logout</a></li>
-					</ul>
-				</div>
-			</li>
-		</ul>
-	</div>
-</nav>
-
 <section class="email_verification" *ngIf="!user.email_verification.is_email_verified" >
 	<div class="inner_container">
 		<p>{{email_verification_message}}</p>

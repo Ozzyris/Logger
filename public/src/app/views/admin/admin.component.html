@@ -1,0 +1,28 @@
+<section class="user_list">
+	<div class="inner_container">
+		<div class="header">
+			<h3>Active user</h3>
+			<p>All user who suscribe to the website</p>
+		</div>
+		<div class="body">
+			<table class="users_container">
+				<tbody>
+					<tr>
+						<th>Given Name</th>
+						<th>Family Name</th>
+						<th>Email</th>
+						<th>Signup date</th>
+						<th></th>
+					</tr>
+					<tr *ngFor="let user of users">
+						<th>{{user.given_name}}</th>
+						<th>{{user.family_name}}</th>
+						<th>{{user.email}}</th>
+						<th>{{user.created_at}}</th>
+						<th><a routerLink="/admin/user-details/{{user.id}}">View</a></th>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section>

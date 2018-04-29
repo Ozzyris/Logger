@@ -18,7 +18,6 @@ export class user_service {
 	get_user_details(): Promise<any>{
 		return this.get_session_from_storage()
 			.then(session => {
-				console.log(session);
 				let url = this.base_url + 'get-user-details';
 				let headers = new Headers({'Content-Type': 'application/json', 'X-Auth-Token': session });
 

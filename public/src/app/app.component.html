@@ -1,1 +1,26 @@
+<nav *ngIf="signed_in_page" class="navigation" >
+	<div class="inner_container">
+		<ul>
+			<li class="active"><a>Home</a></li>
+			<li *ngIf="user.level == 'admin'" routerLink="/admin"><a>Admin</a></li>
+			<li class="profile_sub_nav">
+				<div class="user_icon" [ngStyle]="gradient_style">{{user.avatar.initials}}</div>
+				<div class="nav_dropdown">
+					<div class="header">
+						<h3>Hello {{user.given_name}} ✋</h3>
+					</div>
+					<ul>
+						<li><a>Profile</a></li>
+						<li><a>Notification</a></li>
+						<li><a>Log history</a></li>
+						<li><a>Give get</a></li>
+						<li><a>Terms and Condition</a></li>
+						<li><a (click)="signout()" >Logout</a></li>
+					</ul>
+				</div>
+			</li>
+		</ul>
+	</div>
+</nav>
+
 <router-outlet></router-outlet>

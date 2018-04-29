@@ -18,6 +18,7 @@ import { LandingComponent } from './views/landing/landing.component';
 import { DashboardComponent } from './views/dashboard/dashboard.component';
 import { PagenotfoundComponent } from './views/page-not-found/page-not-found.component';
 import { EmailVerificationComponent } from './views/email-verification/email-verification.component';
+import { AdminComponent } from './views/admin/admin.component';
 
 const appRoutes: Routes = [
 	{ path: 'landing', component: LandingComponent },
@@ -28,10 +29,11 @@ const appRoutes: Routes = [
   	},
 	{ path: 'signup', component: SignupComponent },
 	{ path: 'login', component: LoginComponent },
-	{ path: 'forget-password', component: ForgotpasswordComponent },
+	{ path: 'forgot-password', component: ForgotpasswordComponent },
   { path: 'set-password/:token', component: SetpasswordComponent },
 	{ path: 'email-verification/:token', component: EmailVerificationComponent },
-	{ path: 'dashboard', component: DashboardComponent },
+  { path: 'dashboard', component: DashboardComponent },
+	{ path: 'admin', component: AdminComponent },
 	{ path: '**', component: PagenotfoundComponent }
 ];
 
@@ -45,7 +47,8 @@ const appRoutes: Routes = [
     LandingComponent,
     DashboardComponent,
     PagenotfoundComponent,
-    EmailVerificationComponent
+    EmailVerificationComponent,
+    AdminComponent
   ],
   imports: [
     BrowserModule,

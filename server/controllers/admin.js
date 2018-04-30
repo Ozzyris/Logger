@@ -1,24 +1,24 @@
 const express = require('express'),
-	  router = express.Router();
+	  router = express.Router(),
+	  users = require('../models/users').users;
 
 // HELPERS
 
 // MIDDLEWARE
-var check_auth = require('../middlewares/index').check_auth;
+var check_admin_auth = require('../middlewares/index').check_admin_auth;
 
-router.use( check_auth );
+router.use( check_admin_auth );
 
-// router.get('/users', adminCheck,(req,res)=>{//working
+router.get('/get-all-users',(req,res)=>{
+    users.find({}, 'given_name family_name email created_at').exec()
+        .then(allUsers=>{
+            res.status(200).send(allUsers);
+        })
+        .catch(errors=>{
+            res.status(400).send(errorCheck(errors));
+        });
 
-//     Users.find({}, 'email firstName lastName createdAt').exec()
-//         .then(allUsers=>{
-//             res.status(200).send(allUsers);
-//         })
-//         .catch(errors=>{
-//             res.status(400).send(errorCheck(errors));
-//         });
-
-// });
+});
 
 // router.get('/user/search/:term', adminCheck,(req,res)=>{ //working
 //     var regexedTerm = new RegExp(req.params.term, 'i');

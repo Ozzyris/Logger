@@ -10,34 +10,34 @@ article.user_list{
 			h3{}
 			p{}
 		}
-		div.body{}
+		div.body{
 			table.users_container{
 				width: calc( 100% - 60px );
 				margin: 40px auto 10px;
 				border-collapse: collapse;
 
-				  tbody{
-					th{
-						overflow: auto;
-						cursor: pointer;
-						p{
-							float: left;
-						} 
-						div.filter_group{
-							float: left;
-							margin: -3px 10px 0px 10px;
-							position: relative;
-
-							span{
-								position: absolute;
-								display: block;
-								font-size: 15px;
-								font-family: 'fontawesome';
+					tbody{
+						th{
+							overflow: auto;
+							cursor: pointer;
+							p{
+								float: left;
+							} 
+							div.filter_group{
+								float: left;
+								margin: -3px 10px 0px 10px;
+								position: relative;
+	
+								span{
+									position: absolute;
+									display: block;
+									font-size: 15px;
+									font-family: 'fontawesome';
+								}
+								span:nth-child(1){ top: -1px; }
+								span:nth-child(2){ top: 8px; }
 							}
-							span:nth-child(1){ top: -1px; }
-							span:nth-child(2){ top: 8px; }
 						}
-					}
 						tr{
 							width: 30px;
 							line-height: 30px;
@@ -54,9 +54,9 @@ article.user_list{
 								font-size: 1.3rem;
 								border-bottom: 1px solid #E3E3E3;
 								padding: 5px;
-								color: $med_grey;
+								color: yellow;
 
-								&.green a{ color: $light_green; }
+								&.green a{ color: green; }
 								a{
 									text-align: left;
 									display: block;
@@ -70,7 +70,7 @@ article.user_list{
 					width: calc( 100% - 60px );
 					margin: 0px auto 40px;
 					overflow: auto;
-
+		
 					p.numberofelement{
 						font-size: 1.3rem;
 						float: left;
@@ -79,7 +79,7 @@ article.user_list{
 					div.button_group{
 						width: 150px;
 						float: right;
-
+			
 						a.button{
 							margin: 0px 5px;
 							border: 1px solid rgba(0, 0, 0, 0);
@@ -93,39 +93,19 @@ article.user_list{
 							transition: all 200ms;
 							text-decoration: none;
 							float: right;
-							color: $white;
-							background-color: $light_green;
-
+							color: white;
+							background-color: green;
+			
 							&:hover{
-								background-color: $med_green;
+								background-color: green;
 							}
 							&.disabled{
-								color: $med_green;
-								background-color: $white;
+								color: green;
+								background-color: white;
 							}
 						}
 					}
 				}
-				div.no_result{
-					width: 100%;
-					padding-bottom: 50px; 
-
-					img{
-						display: block;
-						width: 90%;
-						margin: 100px auto 20px;
-						max-width: 150px;
-					}
-					p{
-						width: 100%;
-						text-align: center;
-						margin: 0 auto;
-						font-size: 2.5rem;
-						font-weight: 200;
-						max-width: 300px;
-					}
-				}
-			}
 		}
 	}
 }

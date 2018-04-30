@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd, RouterLinkActive } from '@angular/router';
 import { Observable } from 'rxjs/Rx';
-
 
 //services
 import { user_service } from './services/user/user.service';
@@ -38,7 +37,6 @@ export class AppComponent {
 			.subscribe(event => {
 				if(event instanceof NavigationEnd){
 					let url = event['url'];
-					console.log(url);
 					if(url){
 						if( url != "/" && url.indexOf("signup") <= 0 && url.indexOf("landing") <= 0 && url.indexOf("login") <= 0 && url.indexOf("forgot-password") <= 0 && url.indexOf("set-password") <= 0 && url.indexOf("email-verification") <= 0 ){
 							this.signed_in_page = true;

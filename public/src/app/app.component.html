@@ -1,8 +1,8 @@
 <nav *ngIf="signed_in_page" class="navigation" >
 	<div class="inner_container">
 		<ul>
-			<li class="active"><a>Home</a></li>
-			<li *ngIf="user.level == 'admin'" routerLink="/admin"><a>Admin</a></li>
+			<li routerLinkActive="active" routerLink="/dashboard"><a>Dashboard</a></li>
+			<li *ngIf="user.level == 'admin'" routerLink="/admin" routerLinkActive="active"><a>Admin</a></li>
 			<li class="profile_sub_nav">
 				<div class="user_icon" [ngStyle]="gradient_style">{{user.avatar.initials}}</div>
 				<div class="nav_dropdown">

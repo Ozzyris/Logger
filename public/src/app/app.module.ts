@@ -7,6 +7,7 @@ import { HttpModule } from '@angular/http';
 
 //NON NATIVE PLUGIN
 import { Ng2DeviceDetectorModule } from 'ng2-device-detector';
+import { MomentModule } from 'angular2-moment/moment.module';
 
 // VIEWS
 import { AppComponent } from './app.component';
@@ -55,7 +56,8 @@ const appRoutes: Routes = [
     RouterModule.forRoot(appRoutes),
     FormsModule,
     HttpModule,
-    Ng2DeviceDetectorModule.forRoot()
+    Ng2DeviceDetectorModule.forRoot(),
+    MomentModule
   ],
   providers: [],
   bootstrap: [AppComponent]

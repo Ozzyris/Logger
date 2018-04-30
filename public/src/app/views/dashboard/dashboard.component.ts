@@ -7,10 +7,10 @@ import { user_service } from '../../services/user/user.service';
 import { auth_service } from '../../services/auth/auth.service';
 
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss'],
-  providers: [user_service, auth_service]
+	selector: 'app-dashboard',
+	templateUrl: './dashboard.component.html',
+	styleUrls: ['./dashboard.component.scss'],
+	providers: [user_service, auth_service]
 })
 
 export class DashboardComponent implements OnInit {

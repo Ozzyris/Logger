@@ -9,8 +9,8 @@ var check_admin_auth = require('../middlewares/index').check_admin_auth;
 
 router.use( check_admin_auth );
 
-router.get('/get-all-users',(req,res)=>{
-    users.find({}, 'given_name family_name email created_at').exec()
+router.get('/get-users-summary',(req,res)=>{
+    users.find({}, 'given_name family_name email level created_at').exec()
         .then(allUsers=>{
             res.status(200).send(allUsers);
         })
